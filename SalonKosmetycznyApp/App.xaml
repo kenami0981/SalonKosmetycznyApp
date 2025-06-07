@@ -2,8 +2,27 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:SalonKosmetycznyApp"
+            xmlns:views="clr-namespace:SalonKosmetycznyApp.Views"
+            xmlns:viewmodel="clr-namespace:SalonKosmetycznyApp.ViewModel"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <DataTemplate DataType="{x:Type viewmodel:AddClientViewModel}">
+            <views:AddClientView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodel:AddEmployeeViewModel}">
+            <views:AddEmployeeView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodel:AddTreatmentViewModel}">
+            <views:AddTreatmentView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodel:CalendarViewModel}">
+            <views:CalendarView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodel:AddRoomViewModel}">
+            <views:AddRoomView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodel:AppointmentBookingViewModel}">
+            <views:AppointmentBookingView/>
+        </DataTemplate>
     </Application.Resources>
 </Application>

@@ -1,5 +1,4 @@
 ﻿using System;
-using SalonKosmetycznyApp.ViewModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,17 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SalonKosmetycznyApp
+namespace SalonKosmetycznyApp.Views
 {
     /// <summary>
-    /// Logika interakcji dla klasy MainWindow.xaml
+    /// Logika interakcji dla klasy AddEmployeeView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class AddEmployeeView : UserControl
     {
-        public MainWindow()
+        public AddEmployeeView()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
         }
     }
 }

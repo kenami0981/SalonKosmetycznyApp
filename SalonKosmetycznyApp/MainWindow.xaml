@@ -3,10 +3,27 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SalonKosmetycznyApp.ViewModel" d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         xmlns:local="clr-namespace:SalonKosmetycznyApp"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <vm:MainViewModel x:Name="mainViewModel"/>
+    </Window.DataContext>
     <Grid>
-        
+        <!-- Dynamiczna część oparta na ViewModelu -->
+        <ContentControl Content="{Binding SelectedViewModel}" />
+
+        <!-- Menu -->
+        <Grid x:Name="Menu">
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button Content="Klienci" Command="{Binding UpdateViewCommand}" CommandParameter="client" Margin="5"/>
+                <Button Content="Pracownicy" Command="{Binding UpdateViewCommand}" CommandParameter="employee" Margin="5"/>
+                <Button Content="Zabiegi" Command="{Binding UpdateViewCommand}" CommandParameter="treatment" Margin="5"/>
+                <Button Content="Kalendarz" Command="{Binding UpdateViewCommand}" CommandParameter="calendar" Margin="5"/>
+                <Button Content="Sale" Command="{Binding UpdateViewCommand}" CommandParameter="room" Margin="5"/>
+                <Button Content="Rezerwacja terminów" Command="{Binding UpdateViewCommand}" CommandParameter="booking" Margin="5"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>
