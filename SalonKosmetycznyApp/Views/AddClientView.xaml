@@ -7,11 +7,60 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="White">
-        <Grid Margin="0 30 0 0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+            <StackPanel Margin="15 30 0 0">
+
             <Label Content="klajent"/>
-        </Grid>
-            
-        
-        
+            <TextBlock Text="Imię:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+            BorderBrush="#888" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True">
+                <TextBox Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+                
+                
+            <TextBlock Text="Nazwisko:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+BorderBrush="#888" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True">
+                <TextBox Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+                
+                
+            <TextBlock Text="Płeć:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Background="White" Width="115" HorizontalAlignment="Left" BorderBrush="#888"
+            BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True">
+                <ComboBox Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="14">
+                    <ComboBoxItem Content="Kobieta"/>
+                    <ComboBoxItem Content="Mężczyzna"/>
+                </ComboBox>
+            </Border>
+            <TextBlock Text="Data urodzenia:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="135" HorizontalAlignment="Left" Background="White"
+BorderBrush="#888" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True">
+                <DatePicker Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="14" SelectedDateFormat="Short"/>
+            </Border>
+            <TextBlock Text="Telefon:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+BorderBrush="#888" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True">
+                <TextBox Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+            <TextBlock Text="Email:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+BorderBrush="#888" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True">
+                <TextBox Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+            <TextBlock Text="Uwagi:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+BorderBrush="#888" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True">
+                <TextBox Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+        </StackPanel>
+
+
+
+
+
     </Grid>
 </UserControl>
