@@ -24,5 +24,8 @@
         <DataTemplate DataType="{x:Type viewmodel:AppointmentBookingViewModel}">
             <views:AppointmentBookingView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodel:ProductsViewModel}">
+            <views:ProductsView/>
+        </DataTemplate>
     </Application.Resources>
 </Application>

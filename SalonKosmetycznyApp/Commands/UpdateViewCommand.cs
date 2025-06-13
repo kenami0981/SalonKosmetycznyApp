@@ -49,6 +49,10 @@ namespace SalonKosmetycznyApp.Commands
             {
                 viewModel.SelectedViewModel = new AppointmentBookingViewModel();
             }
+            else if (parameter.ToString() == "products")
+            {
+                viewModel.SelectedViewModel = new ProductsViewModel();
+            }
 
 
         }
