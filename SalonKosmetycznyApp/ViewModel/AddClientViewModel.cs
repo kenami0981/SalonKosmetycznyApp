@@ -96,8 +96,9 @@ namespace SalonKosmetycznyApp.ViewModel
                     {
 
                             
-                        Client client = new Client(_clientName, _clientSurname, _clientNumber, ClientEmail, ClientNote);
+                        Client client = new Client(_clientName, _clientSurname, _clientNumber, _clientEmail, _clientNote);
                         Clients.Add(client);
+
 
 
                         OnPropertyChanged(nameof(_addClientCommand));
@@ -118,6 +119,92 @@ namespace SalonKosmetycznyApp.ViewModel
 
                 return _addClientCommand;
 
+            }
+        }
+        private Client? _selectedClient;
+        public Client SelectedClient
+        {
+            get => _selectedClient;
+            set
+            {
+                _selectedClient = value;
+                if (_selectedClient != null)
+                {
+                    ClientName = _selectedClient.ClientName;
+                    ClientNumber = _selectedClient.ClientNumber;
+                    ClientEmail = _selectedClient.ClientEmail;
+                    ClientNote = _selectedClient.ClientNote;
+                    ClientSurname = _selectedClient.ClientSurname;
+
+                    OnPropertyChanged(nameof(SelectedClient));
+                }
+            }
+        }
+        private ICommand? _updateClientCommand;
+        public ICommand UpdateClientCommand
+        {
+            get
+            {
+                if (_updateClientCommand == null)
+                {
+                    _updateClientCommand = new RelayCommand(
+                    (object o) =>
+                    {
+                        if (_selectedClient != null)
+                        {
+                            var updatedClient = new Client(_clientName, _clientSurname, _clientNumber, _clientEmail, _clientNote);
+
+                            int index = Clients.IndexOf(_selectedClient);
+                            if (index >= 0)
+                            {
+                                Clients[index] = updatedClient;
+                            }
+                            ClientName = string.Empty;
+                            ClientSurname = string.Empty;
+                            ClientNumber = string.Empty;
+                            ClientEmail = string.Empty;
+                            ClientNote = string.Empty;
+                        }
+
+                    },
+                    (object o) =>
+                    {
+                        return !string.IsNullOrEmpty(_clientName) &&
+                        !string.IsNullOrEmpty(_clientSurname) &&
+                        !string.IsNullOrEmpty(_clientNumber);
+                    });
+                }
+                return _updateClientCommand;
+            }
+        }
+        private ICommand? _deleteClientCommand;
+        public ICommand DeleteClientCommand
+        {
+            get
+            {
+                if (_deleteClientCommand == null)
+                {
+                    _deleteClientCommand = new RelayCommand(
+                        (object o) =>
+                        {
+                            if (_selectedClient != null)
+                            {
+                                Clients.Remove(_selectedClient);
+
+                                ClientName = string.Empty;
+                                ClientSurname = string.Empty;
+                                ClientNumber = string.Empty;
+                                ClientEmail = string.Empty;
+                                ClientNote = string.Empty;
+
+                                SelectedClient = null;
+                            }
+                        },
+                        (object o) => _selectedClient != null
+                    );
+                }
+
+                return _deleteClientCommand;
             }
         }
     }

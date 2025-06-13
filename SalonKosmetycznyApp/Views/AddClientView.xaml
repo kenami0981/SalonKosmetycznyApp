@@ -62,8 +62,18 @@ BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels
                 <Button Command="{Binding AddClientCommand}" Content="Dodaj" Background="#adada3" 
             BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
             </Border>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,15,0,0">
+                <Button Command="{Binding UpdateClientCommand}" Content="Zapisz zmiany" Background="#adada3" 
+    BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,15,0,0">
+                <Button Command="{Binding DeleteClientCommand}" Content="Usuń" Background="#adada3" 
+    BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
         </StackPanel>
-        <ListBox BorderBrush="Transparent" Background ="#FFFFF0" Grid.Column="1" Margin="0 90 15 0" ItemsSource="{Binding Clients}">
+        <ListBox BorderBrush="Transparent" Background ="#FFFFF0" Grid.Column="1" Margin="0 90 15 0" ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}">
             
         </ListBox>
 
