@@ -1,19 +1,86 @@
 ﻿using SalonKosmetycznyApp.Commands;
 using SalonKosmetycznyApp.Model;
-using System;
+using SalonKosmetycznyApp.Services; // <- dodaj jeśli potrzebne
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using System.ComponentModel;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace SalonKosmetycznyApp.ViewModel
 {
     internal class AddClientViewModel : BaseViewModel
     {
+        public AddClientViewModel()
+        {
+            LoadData();
+        }
+        private readonly ClientService _clientService = new ClientService();
+
         public ObservableCollection<Client> Clients { get; } = new ObservableCollection<Client>();
+
+        private ICollectionView _clientsView;
+        public ICollectionView ClientsView
+        {
+            get => _clientsView;
+            private set
+            {
+                _clientsView = value;
+                OnPropertyChanged(nameof(ClientsView));
+            }
+        }
+
+        private string _searchTerm;
+        public string SearchTerm
+        {
+            get => _searchTerm;
+            set
+            {
+                if (_searchTerm != value)
+                {
+                    _searchTerm = value;
+                    OnPropertyChanged(nameof(SearchTerm));
+                    ClientsView?.Refresh();
+                }
+            }
+        }
+
+        public void LoadData()
+        {
+            Clients.Clear();
+            var clientsFromDb = _clientService.GetAllClients();
+            foreach (var client in clientsFromDb)
+                Clients.Add(client);
+
+            InitializeClientsView();
+        }
+        public void ClearForm()
+        {
+            ClientName = ClientSurname = ClientNumber = ClientEmail = ClientNote = string.Empty;
+            SelectedClient = null;
+        }
+
+        public void InitializeClientsView()
+        {
+            ClientsView = CollectionViewSource.GetDefaultView(Clients);
+            ClientsView.Filter = FilterClients;
+        }
+
+        private bool FilterClients(object obj)
+        {
+            if (obj is Client client)
+            {
+                if (string.IsNullOrWhiteSpace(SearchTerm)) return true;
+
+                var term = SearchTerm.ToLower();
+                return client.ClientName.ToLower().Contains(term)
+                    || client.ClientSurname.ToLower().Contains(term)
+                    || (client.ClientEmail?.ToLower().Contains(term) ?? false)
+                    || client.ClientNumber.ToLower().Contains(term);
+            }
+            return false;
+        }
+
         private string _clientName;
         public string ClientName
         {
@@ -84,45 +151,8 @@ namespace SalonKosmetycznyApp.ViewModel
 
             }
         }
-        private ICommand? _addClientCommand;
-        public ICommand AddClientCommand
-        {
-            get
-            {
-                if (_addClientCommand == null)
-                {
-                    _addClientCommand = new RelayCommand(
-                    (object o) =>
-                    {
-
-                            
-                        Client client = new Client(_clientName, _clientSurname, _clientNumber, _clientEmail, _clientNote);
-                        Clients.Add(client);
-
-
-
-                        OnPropertyChanged(nameof(_addClientCommand));
-                        ClientName = string.Empty;
-                        ClientSurname = string.Empty;
-                        ClientNumber = string.Empty;
-                        ClientEmail = string.Empty;
-                        ClientNote = string.Empty;
-
-                    },
-                    (object o) =>
-                    {
-                        return !string.IsNullOrEmpty(_clientName) &&
-                        !string.IsNullOrEmpty(_clientSurname) &&
-                        !string.IsNullOrEmpty(_clientNumber);
-                    });
-                }
-
-                return _addClientCommand;
-
-            }
-        }
-        private Client? _selectedClient;
-        public Client SelectedClient
+        private Client _selectedClient;
+        public Client? SelectedClient
         {
             get => _selectedClient;
             set
@@ -131,81 +161,80 @@ namespace SalonKosmetycznyApp.ViewModel
                 if (_selectedClient != null)
                 {
                     ClientName = _selectedClient.ClientName;
+                    ClientSurname = _selectedClient.ClientSurname;
                     ClientNumber = _selectedClient.ClientNumber;
                     ClientEmail = _selectedClient.ClientEmail;
                     ClientNote = _selectedClient.ClientNote;
-                    ClientSurname = _selectedClient.ClientSurname;
 
                     OnPropertyChanged(nameof(SelectedClient));
                 }
             }
         }
-        private ICommand? _updateClientCommand;
-        public ICommand UpdateClientCommand
-        {
-            get
+
+        private ICommand _addClientCommand;
+        public ICommand AddClientCommand => _addClientCommand ??= new RelayCommand(
+            o =>
             {
-                if (_updateClientCommand == null)
-                {
-                    _updateClientCommand = new RelayCommand(
-                    (object o) =>
-                    {
-                        if (_selectedClient != null)
-                        {
-                            var updatedClient = new Client(_clientName, _clientSurname, _clientNumber, _clientEmail, _clientNote);
+                var client = new Client(ClientName, ClientSurname, ClientNumber, ClientEmail, ClientNote);
+                _clientService.AddClient(client);
+                LoadData();
+                ClearForm();
+                OnPropertyChanged(nameof(AddClientCommand));
+            },
+            o => !string.IsNullOrWhiteSpace(ClientName) &&
+                 !string.IsNullOrWhiteSpace(ClientSurname) &&
+                 !string.IsNullOrWhiteSpace(ClientNumber)
+        );
 
-                            int index = Clients.IndexOf(_selectedClient);
-                            if (index >= 0)
-                            {
-                                Clients[index] = updatedClient;
-                            }
-                            ClientName = string.Empty;
-                            ClientSurname = string.Empty;
-                            ClientNumber = string.Empty;
-                            ClientEmail = string.Empty;
-                            ClientNote = string.Empty;
-                        }
-
-                    },
-                    (object o) =>
-                    {
-                        return !string.IsNullOrEmpty(_clientName) &&
-                        !string.IsNullOrEmpty(_clientSurname) &&
-                        !string.IsNullOrEmpty(_clientNumber);
-                    });
-                }
-                return _updateClientCommand;
-            }
-        }
-        private ICommand? _deleteClientCommand;
-        public ICommand DeleteClientCommand
-        {
-            get
+        private ICommand _updateClientCommand;
+        public ICommand UpdateClientCommand => _updateClientCommand ??= new RelayCommand(
+            o =>
             {
-                if (_deleteClientCommand == null)
+                if (_selectedClient != null)
                 {
-                    _deleteClientCommand = new RelayCommand(
-                        (object o) =>
-                        {
-                            if (_selectedClient != null)
-                            {
-                                Clients.Remove(_selectedClient);
+                    _selectedClient.ClientName = ClientName;
+                    _selectedClient.ClientSurname = ClientSurname;
+                    _selectedClient.ClientNumber = ClientNumber;
+                    _selectedClient.ClientEmail = ClientEmail;
+                    _selectedClient.ClientNote = ClientNote;
 
-                                ClientName = string.Empty;
-                                ClientSurname = string.Empty;
-                                ClientNumber = string.Empty;
-                                ClientEmail = string.Empty;
-                                ClientNote = string.Empty;
-
-                                SelectedClient = null;
-                            }
-                        },
-                        (object o) => _selectedClient != null
-                    );
+                    _clientService.UpdateClient(_selectedClient);
+                    LoadData();
+                    ClearForm();
                 }
+            },
+            o => _selectedClient != null &&
+                 !string.IsNullOrWhiteSpace(ClientName) &&
+                 !string.IsNullOrWhiteSpace(ClientSurname) &&
+                 !string.IsNullOrWhiteSpace(ClientNumber)
+        );
 
-                return _deleteClientCommand;
+        private ICommand _deleteClientCommand;
+        public ICommand DeleteClientCommand => _deleteClientCommand ??= new RelayCommand(
+            o =>
+            {
+                if (_selectedClient != null)
+                {
+                    _clientService.DeleteClient(_selectedClient.Id);
+                    Clients.Remove(_selectedClient);
+                    LoadData();
+                    ClearForm();
+                }
+            },
+            o => _selectedClient != null
+        );
+
+        
+
+        protected bool SetProperty<T>(ref T field, T value, string propertyName = null)
+        {
+            if (!EqualityComparer<T>.Default.Equals(field, value))
+            {
+                field = value;
+                OnPropertyChanged(propertyName ?? nameof(field));
+                return true;
             }
+            return false;
         }
     }
 }

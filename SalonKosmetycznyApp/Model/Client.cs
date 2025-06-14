@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace SalonKosmetycznyApp.Model
 {
-    internal class Client
+    public class Client
     {
+        public int Id { get; set; }
         public string ClientName { get; set; }
         public string ClientSurname { get; set; }
         //public string ClientSex { get; set; }
