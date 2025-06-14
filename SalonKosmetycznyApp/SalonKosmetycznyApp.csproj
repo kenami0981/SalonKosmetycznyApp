@@ -10,6 +10,9 @@
   <PropertyGroup>
   <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="9.3.0" />
+  </ItemGroup>
 
 
   <!-- Jeśli używasz bibliotek z NuGet, dodaj je tutaj -->

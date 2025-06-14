@@ -73,7 +73,11 @@ BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="
     BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
             </Border>
         </StackPanel>
-        <ListBox BorderBrush="Transparent" Background ="#FFFFF0" Grid.Column="1" Margin="0 90 15 0" ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}">
+        <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0 115 15 0" Panel.ZIndex="5" Background="White"
+BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
+            <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+        </Border>
+        <ListBox BorderBrush="Transparent" Background ="#FFFFF0" Grid.Column="1" Margin="0 160 15 0" ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}">
             
         </ListBox>
 
