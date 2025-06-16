@@ -53,6 +53,10 @@ namespace SalonKosmetycznyApp.Commands
             {
                 viewModel.SelectedViewModel = new ProductsViewModel();
             }
+            else if (parameter.ToString() == "employee_schedule")
+            {
+                viewModel.SelectedViewModel = new EmployeeScheduleViewModel();
+            }
 
 
         }
