@@ -24,6 +24,7 @@
                 <Button Content="Sale" Command="{Binding UpdateViewCommand}" CommandParameter="room" Margin="5"/>
                 <Button Content="Rezerwacja terminów" Command="{Binding UpdateViewCommand}" CommandParameter="booking" Margin="5"/>
                 <Button Content="Produkty" Command="{Binding UpdateViewCommand}" CommandParameter="products" Margin="5"/>
+                <Button Content="Grafik" Command="{Binding UpdateViewCommand}" CommandParameter="employee_schedule" Margin="5"/>
             </StackPanel>
         </Grid>
     </Grid>

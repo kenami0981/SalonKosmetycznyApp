@@ -89,7 +89,7 @@ namespace SalonKosmetycznyApp.Services
             cmd.Parameters.AddWithValue("@gender", client.ClientGender);
             cmd.Parameters.AddWithValue("@email", client.ClientEmail);
             cmd.Parameters.AddWithValue("@note", client.ClientNote);
-            Console.WriteLine(client.ClientGender);
+
             cmd.ExecuteNonQuery();
         }
 
