@@ -16,6 +16,7 @@ namespace SalonKosmetycznyApp.ViewModel
             LoadData();
         }
         private readonly ClientService _clientService = new ClientService();
+        public List<string> GenderOptions { get; } = new() { "Kobieta", "Mężczyzna" };
 
         public ObservableCollection<Client> Clients { get; } = new ObservableCollection<Client>();
 
@@ -57,6 +58,7 @@ namespace SalonKosmetycznyApp.ViewModel
         public void ClearForm()
         {
             ClientName = ClientSurname = ClientNumber = ClientEmail = ClientNote = string.Empty;
+            ClientGender = null;
             SelectedClient = null;
         }
 
@@ -123,6 +125,12 @@ namespace SalonKosmetycznyApp.ViewModel
 
             }
         }
+        private string _clientGender;
+        public string ClientGender
+        {
+            get => _clientGender;
+            set => SetProperty(ref _clientGender, value);
+        }
         private string _clientEmail;
         public string ClientEmail
         {
@@ -175,7 +183,7 @@ namespace SalonKosmetycznyApp.ViewModel
         public ICommand AddClientCommand => _addClientCommand ??= new RelayCommand(
             o =>
             {
-                var client = new Client(ClientName, ClientSurname, ClientNumber, ClientEmail, ClientNote);
+                var client = new Client(ClientName, ClientSurname, ClientNumber, ClientGender, ClientEmail, ClientNote);
                 _clientService.AddClient(client);
                 LoadData();
                 ClearForm();
@@ -195,6 +203,7 @@ namespace SalonKosmetycznyApp.ViewModel
                     _selectedClient.ClientName = ClientName;
                     _selectedClient.ClientSurname = ClientSurname;
                     _selectedClient.ClientNumber = ClientNumber;
+                    _selectedClient.ClientGender = ClientGender;
                     _selectedClient.ClientEmail = ClientEmail;
                     _selectedClient.ClientNote = ClientNote;
 

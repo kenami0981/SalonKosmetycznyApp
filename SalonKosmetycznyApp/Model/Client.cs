@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace SalonKosmetycznyApp.Model
 {
@@ -11,18 +12,18 @@ namespace SalonKosmetycznyApp.Model
         public int Id { get; set; }
         public string ClientName { get; set; }
         public string ClientSurname { get; set; }
-        //public string ClientSex { get; set; }
-        //public DateTime ClientBirthDate { get; set; }
+        public string ClientGender { get; set; }
         public string ClientNumber { get; set; }
         public string ClientEmail { get; set; }
         public string ClientNote { get; set; }
 
 
-        public Client(string _clientName, string _clientSurname, string _clientNumber, string? _clientEmail = null, string? clientNote = null)
+        public Client(string _clientName, string _clientSurname, string _clientNumber,string? _clientGender, string? _clientEmail = null, string? clientNote = null)
         {
             ClientName = _clientName;
             ClientSurname = _clientSurname;
             ClientNumber = _clientNumber;
+            ClientGender = _clientGender;
             ClientEmail = _clientEmail;
             ClientNote = clientNote;
         }
@@ -31,7 +32,8 @@ namespace SalonKosmetycznyApp.Model
 
         public override string ToString()
         {
-            return $"{ClientName}, {ClientSurname}, {ClientNumber} {ClientEmail} {ClientNote}";
+            //MessageBox.Show(ClientGender.ToString());
+            return $"{ClientName}, {ClientSurname}, {ClientNumber} {ClientGender} {ClientEmail} {ClientNote}";
         }
     }
 }
