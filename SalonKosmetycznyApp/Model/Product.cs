@@ -6,22 +6,26 @@ using System.Threading.Tasks;
 
 namespace SalonKosmetycznyApp.Model
 {
-    class Product
+    public class Product
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public float Price { get; set; }
+        public decimal Price { get; set; }
         public int ProductStock {  get; set; }
 
-    }
-
-    public Product(int id, string name, string description, float price, int productStock)
+        public Product(string name, string description, decimal price, int productStock)
         {
-            Id = id;    
             Name = name;
             Description = description;
             Price = price;
             ProductStock = productStock;
         }
+
+        public override string ToString()
+        {
+            return $"{Name} ({ProductStock} szt.) - {Price:C}";
+        }
+    }
+
 }

@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace SalonKosmetycznyApp.Model
 {
-    class CosmeticTreatment
+    public enum TreatmentType
     {
-
+        Twarz,
+        Ciało,
+        Włosy,
+        Dłonie,
+        Stopy,
+        Depilacja,
+        Masaż
     }
 }
