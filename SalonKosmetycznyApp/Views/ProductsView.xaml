@@ -4,11 +4,96 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SalonKosmetycznyApp.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Grid Margin="0 30 0 0">
-            <Label Content="kosmetik prodakts"/>
-        </Grid>
+             mc:Ignorable="d" d:DesignWidth="800" Height="528">
+    <Grid Background="#FFFFF0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Label Margin="0 30 0 0" Content="Produkty" HorizontalAlignment="Center"
+               Grid.ColumnSpan="2" FontSize="45" Panel.ZIndex="1" FontWeight="Bold" />
+
+        <StackPanel Margin="15 90 0 0" Grid.Column="0">
+
+            <TextBlock Text="Nazwa produktu:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" Width="200" Background="White"
+                    BorderThickness="1.5" CornerRadius="8">
+                <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Opis:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" Width="200" Background="White"
+                    BorderThickness="1.5" CornerRadius="8">
+                <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Cena:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" Width="200" Background="White"
+                    BorderThickness="1.5" CornerRadius="8">
+                <TextBox Text="{Binding Price, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Ilość na stanie:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" Width="200" Background="White"
+                    BorderThickness="1.5" CornerRadius="8">
+                <TextBox Text="{Binding ProductStock, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+                    BorderThickness="1" CornerRadius="8" Margin="0,15,0,0">
+                <Button Content="Dodaj produkt" Command="{Binding AddProductCommand}"
+                        Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+                    BorderThickness="1" CornerRadius="8" Margin="0,10,0,0">
+                <Button Content="Zapisz zmiany" Command="{Binding UpdateProductCommand}"
+                        Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+                    BorderThickness="1" CornerRadius="8" Margin="0,10,0,0">
+                <Button Content="Usuń" Command="{Binding DeleteProductCommand}"
+                        Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+
+        </StackPanel>
+
+        <ListBox Grid.Column="1" Margin="0 90 15 0" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <TextBlock Text="{Binding Name}" FontSize="13" Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding ProductStock}" FontSize="13">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="Black"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ProductStock}" Value="0">
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ProductStock}" Value="1">
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ProductStock}" Value="2">
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ProductStock}" Value="3">
+                                            <Setter Property="Foreground" Value="Red"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
     </Grid>
 </UserControl>
