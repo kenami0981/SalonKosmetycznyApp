@@ -1,6 +1,6 @@
 ﻿using SalonKosmetycznyApp.Commands;
 using SalonKosmetycznyApp.Model;
-using SalonKosmetycznyApp.Services; // <- dodaj jeśli potrzebne
+using SalonKosmetycznyApp.Services; 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
