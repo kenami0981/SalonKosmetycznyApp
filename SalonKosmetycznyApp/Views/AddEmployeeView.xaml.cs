@@ -1,7 +1,9 @@
-﻿using System;
+﻿using SalonKosmetycznyApp.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,6 +25,25 @@ namespace SalonKosmetycznyApp.Views
         public AddEmployeeView()
         {
             InitializeComponent();
+            this.DataContext = new AddEmployeeViewModel();
+        }
+
+        public void ClearPasswordBox()
+        {
+            PasswordInput.Password = string.Empty;
+        }
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is AddEmployeeViewModel viewModel && sender is PasswordBox passwordBox)
+            {
+                viewModel.Password = passwordBox.Password;
+            }
+        }
+
+        private void PhoneTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Pozwalaj tylko na cyfry
+            e.Handled = !Regex.IsMatch(e.Text, @"^[0-9]+$");
         }
     }
 }
