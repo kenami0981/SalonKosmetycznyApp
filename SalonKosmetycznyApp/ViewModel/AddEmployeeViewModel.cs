@@ -28,6 +28,12 @@ namespace SalonKosmetycznyApp.ViewModel
 
         public ObservableCollection<Employee> Employees { get; } = new ObservableCollection<Employee>();
 
+        public ObservableCollection<string> StatusList { get; } = new()
+        {
+            "Aktywny",
+            "Nieaktywny",
+        };
+
         private void LoadData()
         {
             Employees.Clear();

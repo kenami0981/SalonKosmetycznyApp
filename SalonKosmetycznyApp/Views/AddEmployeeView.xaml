@@ -70,9 +70,9 @@
             <TextBlock Text="Stan aktywności:" FontSize="13" Margin="0,10,0,5"/>
             <Border Width="115" HorizontalAlignment="Left" Background="White" BorderBrush="#483C32" BorderThickness="1.5"
                     CornerRadius="8" SnapsToDevicePixels="True">
-                <ComboBox SelectedItem="{Binding Status, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="14">
-                    <ComboBoxItem Content="Aktywny"/>
-                    <ComboBoxItem Content="Nieaktywny"/>
+                <ComboBox
+                     ItemsSource="{Binding StatusList}"
+                     SelectedItem="{Binding Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="14">
                 </ComboBox>
             </Border>
 
