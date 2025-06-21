@@ -86,6 +86,8 @@ namespace SalonKosmetycznyApp.ViewModel
             var fromDb = _productService.GetAllProducts();
             foreach (var p in fromDb)
                 Products.Add(p);
+
+            CheckLowStock();
         }
 
         public void ClearForm()
@@ -128,6 +130,20 @@ namespace SalonKosmetycznyApp.ViewModel
             },
             o => SelectedProduct != null
         );
+
+        public event Action<int> LowStockDetected;
+
+        private const int StockLimit = 3;
+
+        public void CheckLowStock()
+        {
+            int lowStockCount = Products.Count(p => p.ProductStock <= StockLimit);
+            if (lowStockCount > 0)
+            {
+                LowStockDetected?.Invoke(lowStockCount);
+            }
+        }
+
 
     }
 }

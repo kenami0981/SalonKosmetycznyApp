@@ -11,7 +11,7 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <Label Margin="0 30 0 0" Content="Produkty" HorizontalAlignment="Center"
+        <Label Margin="0 10 0 0" Content="Produkty" HorizontalAlignment="Center"
                Grid.ColumnSpan="2" FontSize="45" Panel.ZIndex="1" FontWeight="Bold" />
 
         <StackPanel Margin="15 90 0 0" Grid.Column="0">

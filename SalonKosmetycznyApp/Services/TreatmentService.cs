@@ -25,20 +25,34 @@ namespace SalonKosmetycznyApp.Services
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
 
-            string createTableQuery = @"
-                CREATE TABLE IF NOT EXISTS treatments (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
-                    description TEXT,
-                    duration_minutes INT NOT NULL,
-                    price DECIMAL(10,2) NOT NULL,
-                    type VARCHAR(100)
-                );
-            ";
+            string createTreatmentsTableQuery = @"
+        CREATE TABLE IF NOT EXISTS treatments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            description TEXT,
+            duration_minutes INT NOT NULL,
+            price DECIMAL(10,2) NOT NULL,
+            type VARCHAR(100)
+        );
+    ";
 
-            using var cmd = new MySqlCommand(createTableQuery, conn);
-            cmd.ExecuteNonQuery();
+            string createTreatmentProductsTableQuery = @"
+        CREATE TABLE IF NOT EXISTS treatment_products (
+            treatment_id INT NOT NULL,
+            product_id INT NOT NULL,
+            PRIMARY KEY (treatment_id, product_id),
+            FOREIGN KEY (treatment_id) REFERENCES treatments(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+        );
+    ";
+
+            using var cmd1 = new MySqlCommand(createTreatmentsTableQuery, conn);
+            cmd1.ExecuteNonQuery();
+
+            using var cmd2 = new MySqlCommand(createTreatmentProductsTableQuery, conn);
+            cmd2.ExecuteNonQuery();
         }
+
 
         public List<Treatment> GetAllTreatments()
         {
@@ -82,18 +96,43 @@ namespace SalonKosmetycznyApp.Services
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
 
-            var cmd = new MySqlCommand(@"
-                INSERT INTO treatments (name, description, duration_minutes, price, type) 
-                VALUES (@name, @desc, @duration, @price, @type)", conn);
+            using var transaction = conn.BeginTransaction();
 
-            cmd.Parameters.AddWithValue("@name", treatment.Name);
-            cmd.Parameters.AddWithValue("@desc", treatment.Description);
-            cmd.Parameters.AddWithValue("@duration", (int)treatment.Duration.TotalMinutes);
-            cmd.Parameters.AddWithValue("@price", treatment.Price);
-            cmd.Parameters.AddWithValue("@type", treatment.TreatmentType);
+            try
+            {
+                var insertQuery = @"
+            INSERT INTO treatments (name, description, duration_minutes, price, type)
+            VALUES (@name, @description, @duration, @price, @type);
+            SELECT LAST_INSERT_ID();
+        ";
 
-            cmd.ExecuteNonQuery();
+                using var cmd = new MySqlCommand(insertQuery, conn, transaction);
+                cmd.Parameters.AddWithValue("@name", treatment.Name);
+                cmd.Parameters.AddWithValue("@description", treatment.Description);
+                cmd.Parameters.AddWithValue("@duration", (int)treatment.Duration.TotalMinutes);
+                cmd.Parameters.AddWithValue("@price", treatment.Price);
+                cmd.Parameters.AddWithValue("@type", treatment.TreatmentType.ToString());
+
+                int treatmentId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                foreach (var product in treatment.Products)
+                {
+                    var relCmd = new MySqlCommand(
+                        "INSERT INTO treatment_products (treatment_id, product_id) VALUES (@tid, @pid)", conn, transaction);
+                    relCmd.Parameters.AddWithValue("@tid", treatmentId);
+                    relCmd.Parameters.AddWithValue("@pid", product.Id);
+                    relCmd.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
+
 
         public void UpdateTreatment(Treatment treatment)
         {
@@ -114,6 +153,19 @@ namespace SalonKosmetycznyApp.Services
 
             cmd.ExecuteNonQuery();
         }
+
+        public void LinkProductToTreatment(int treatmentId, int productId)
+        {
+            using var conn = new MySqlConnection(_connectionString);
+            conn.Open();
+
+            var cmd = new MySqlCommand("INSERT IGNORE INTO treatment_products (treatment_id, product_id) VALUES (@treatmentId, @productId)", conn);
+            cmd.Parameters.AddWithValue("@treatmentId", treatmentId);
+            cmd.Parameters.AddWithValue("@productId", productId);
+
+            cmd.ExecuteNonQuery();
+        }
+
 
         public void DeleteTreatment(int treatmentId)
         {

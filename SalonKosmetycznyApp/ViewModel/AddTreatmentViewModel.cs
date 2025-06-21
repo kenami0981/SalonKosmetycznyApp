@@ -16,6 +16,7 @@ namespace SalonKosmetycznyApp.ViewModel
     internal class AddTreatmentViewModel : BaseViewModel
     {
         private readonly TreatmentService _treatmentService = new TreatmentService();
+        private readonly ProductService _productService = new ProductService();
 
         public AddTreatmentViewModel()
         {
@@ -23,6 +24,17 @@ namespace SalonKosmetycznyApp.ViewModel
         }
 
         public ObservableCollection<Treatment> Treatments { get; } = new ObservableCollection<Treatment>();
+        public ObservableCollection<Product> AllProducts { get; } = new ObservableCollection<Product>();
+        private ObservableCollection<Product> _selectedProducts = new ObservableCollection<Product>();
+        public ObservableCollection<Product> SelectedProducts
+        {
+            get => _selectedProducts;
+            set
+            {
+                _selectedProducts = value;
+                OnPropertyChanged(nameof(SelectedProducts));
+            }
+        }
 
         private ICollectionView _treatmentsView;
         public ICollectionView TreatmentsView
@@ -50,9 +62,15 @@ namespace SalonKosmetycznyApp.ViewModel
         public void LoadData()
         {
             Treatments.Clear();
+            AllProducts.Clear();
+
             var fromDb = _treatmentService.GetAllTreatments();
             foreach (var t in fromDb)
                 Treatments.Add(t);
+
+            var products = _productService.GetAllProducts();
+            foreach (var p in products)
+                AllProducts.Add(p);
 
             InitializeTreatmentsView();
         }
@@ -77,11 +95,12 @@ namespace SalonKosmetycznyApp.ViewModel
 
         public void ClearForm()
         {
-            Name = Description  = string.Empty;
-            TreatmentType = TreatmentType.Twarz;
+            Name = Description = string.Empty;
             DurationMinutes = 0;
             Price = 0;
+            TreatmentType = TreatmentType.Twarz;
             SelectedTreatment = null;
+            SelectedProducts.Clear();
         }
 
         // Właściwości formularza
@@ -136,17 +155,23 @@ namespace SalonKosmetycznyApp.ViewModel
                     DurationMinutes = (int)value.Duration.TotalMinutes;
                     Price = value.Price;
                     TreatmentType = value.TreatmentType;
+
+                    SelectedProducts.Clear();
+                    foreach (var p in value.Products)
+                        SelectedProducts.Add(p);
                 }
                 OnPropertyChanged(nameof(SelectedTreatment));
             }
         }
 
-        // Komendy
         public ICommand AddTreatmentCommand => new RelayCommand(
             o =>
             {
-                var t = new Treatment(Name, Description, TimeSpan.FromMinutes(DurationMinutes), Price, TreatmentType);
-                _treatmentService.AddTreatment(t);
+                var treatment = new Treatment(Name, Description, TimeSpan.FromMinutes(DurationMinutes), Price, TreatmentType)
+                {
+                    Products = SelectedProducts.ToList()
+                };
+                _treatmentService.AddTreatment(treatment);
                 LoadData();
                 ClearForm();
             },
@@ -163,6 +188,7 @@ namespace SalonKosmetycznyApp.ViewModel
                     _selectedTreatment.Duration = TimeSpan.FromMinutes(DurationMinutes);
                     _selectedTreatment.Price = Price;
                     _selectedTreatment.TreatmentType = TreatmentType;
+                    _selectedTreatment.Products = SelectedProducts.ToList();
 
                     _treatmentService.UpdateTreatment(_selectedTreatment);
                     LoadData();
@@ -185,4 +211,5 @@ namespace SalonKosmetycznyApp.ViewModel
             o => _selectedTreatment != null
         );
     }
-}
+}   
+

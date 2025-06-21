@@ -15,6 +15,9 @@ namespace SalonKosmetycznyApp.Model
         public decimal Price { get; set; }
         public TreatmentType TreatmentType { get; set; }
 
+        public List<Product> Products { get; set; } = new();
+
+
         public Treatment(string name, string description, TimeSpan duration, decimal price, TreatmentType type)
         {
             Name = name;
