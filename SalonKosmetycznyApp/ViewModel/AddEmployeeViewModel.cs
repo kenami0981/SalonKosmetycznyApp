@@ -1,6 +1,7 @@
 ﻿using SalonKosmetycznyApp.Commands;
 using SalonKosmetycznyApp.Model;
 using SalonKosmetycznyApp.Services;
+using SalonKosmetycznyApp.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,127 +13,50 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace SalonKosmetycznyApp.ViewModel
 {
     internal class AddEmployeeViewModel : BaseViewModel
     {
+        private readonly EmployeeService _employeeService = new EmployeeService();
 
         public AddEmployeeViewModel()
         {
             LoadData();
         }
 
-        #region Attached Property for PasswordBox
-        public static readonly DependencyProperty BoundPasswordProperty =
-            DependencyProperty.RegisterAttached("BoundPassword",
-                typeof(string), typeof(AddEmployeeViewModel),
-                new PropertyMetadata(string.Empty, OnBoundPasswordChanged));
-
-        public static string GetBoundPassword(DependencyObject dp)
-        {
-            return (string)dp.GetValue(BoundPasswordProperty);
-        }
-
-        public static void SetBoundPassword(DependencyObject dp, string value)
-        {
-            dp.SetValue(BoundPasswordProperty, value);
-        }
-
-        private static void OnBoundPasswordChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is PasswordBox passwordBox)
-            {
-                passwordBox.PasswordChanged -= PasswordBox_PasswordChanged;
-                if (!string.IsNullOrEmpty(e.NewValue as string))
-                {
-                    passwordBox.Password = e.NewValue as string;
-                }
-                passwordBox.PasswordChanged += PasswordBox_PasswordChanged;
-            }
-        }
-
-        private static void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (sender is PasswordBox passwordBox)
-            {
-                SetBoundPassword(passwordBox, passwordBox.Password);
-                if (passwordBox.DataContext is AddEmployeeViewModel viewModel)
-                {
-                    viewModel.Password = passwordBox.Password;
-                }
-            }
-        }
-        #endregion
-
-        private readonly EmployeeService _employeeService = new EmployeeService();
-
         public ObservableCollection<Employee> Employees { get; } = new ObservableCollection<Employee>();
 
-        private ICollectionView _employeesView;
-        public ICollectionView EmployeesView
-        {
-            get => _employeesView;
-            private set
-            {
-                _employeesView = value;
-                OnPropertyChanged(nameof(EmployeesView));
-            }
-        }
-
-        private string _searchTerm;
-        public string SearchTerm
-        {
-            get => _searchTerm;
-            set
-            {
-                if (_searchTerm != value)
-                {
-                    _searchTerm = value;
-                    OnPropertyChanged(nameof(SearchTerm));
-                    EmployeesView?.Refresh();
-                }
-            }
-        }
-
-        public void LoadData()
+        private void LoadData()
         {
             Employees.Clear();
             var employeesFromDb = _employeeService.GetAllEmployees();
             foreach (var employee in employeesFromDb)
                 Employees.Add(employee);
-
-            InitializeEmployeesView();
         }
 
         public void ClearForm()
         {
-            Login = Password = Phone = Email = Position = Status = FirstName = LastName = string.Empty;
+            Login = string.Empty;
+            Password = string.Empty; 
+            Phone = string.Empty;
+            Email = string.Empty;
             HireDate = null;
+            Position = string.Empty;
+            Status = "Aktywny";
+            FirstName = string.Empty;
+            LastName = string.Empty;
             SelectedEmployee = null;
+
+            var addEmployeeView = Application.Current.Windows
+                .OfType<Window>()
+                .SelectMany(w => w.FindVisualChildren<AddEmployeeView>())
+                .FirstOrDefault();
+            addEmployeeView?.ClearPasswordBox();
         }
 
-        public void InitializeEmployeesView()
-        {
-            EmployeesView = CollectionViewSource.GetDefaultView(Employees);
-            EmployeesView.Filter = FilterEmployees;
-        }
 
-        private bool FilterEmployees(object obj)
-        {
-            if (obj is Employee employee)
-            {
-                if (string.IsNullOrWhiteSpace(SearchTerm)) return true;
-
-                var term = SearchTerm.ToLower();
-                return employee.FirstName.ToLower().Contains(term)
-                    || employee.LastName.ToLower().Contains(term)
-                    || employee.Position.ToLower().Contains(term)
-                    || (employee.Phone?.ToLower().Contains(term) ?? false)
-                    || (employee.Email?.ToLower().Contains(term) ?? false);
-            }
-            return false;
-        }
 
         private string _login;
         public string Login
@@ -158,6 +82,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 {
                     _password = value;
                     OnPropertyChanged(nameof(Password));
+
                 }
             }
         }
@@ -270,7 +195,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 if (_selectedEmployee != null)
                 {
                     Login = _selectedEmployee.Login;
-                    Password = _selectedEmployee.Password; // Uwaga: W rzeczywistej aplikacji nie pokazuj hasła
+                    Password = _selectedEmployee.Password; // Pobranie istniejącego hasła
                     Phone = _selectedEmployee.Phone;
                     Email = _selectedEmployee.Email;
                     HireDate = _selectedEmployee.HireDate;
@@ -280,6 +205,14 @@ namespace SalonKosmetycznyApp.ViewModel
                     LastName = _selectedEmployee.LastName;
                     OnPropertyChanged(nameof(SelectedEmployee));
                 }
+            }
+        }
+
+        public void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender is PasswordBox passwordBox)
+            {
+                Password = passwordBox.Password;
             }
         }
 
@@ -300,8 +233,18 @@ namespace SalonKosmetycznyApp.ViewModel
                 );
                 _employeeService.AddEmployee(employee);
                 LoadData();
-                ClearForm();
-                MessageBox.Show("Employee added successfully.", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                ClearForm(); // Resetuje hasło na pusty string
+                (Application.Current.Windows
+            .OfType<Window>()
+            .FirstOrDefault(w => w is SalonKosmetycznyApp.Views.AddEmployeeView))?
+            .GetType()
+            .GetMethod("ClearPasswordBox")
+            ?.Invoke(
+                Application.Current.Windows.OfType<Window>()
+                .FirstOrDefault(w => w is SalonKosmetycznyApp.Views.AddEmployeeView),
+                null
+            );
+                MessageBox.Show("Pracownik dodany pomyślnie.", "", MessageBoxButton.OK, MessageBoxImage.Information);
             },
             o => !string.IsNullOrWhiteSpace(Login) &&
                  !string.IsNullOrWhiteSpace(Password) &&
@@ -319,7 +262,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 if (SelectedEmployee != null)
                 {
                     SelectedEmployee.Login = Login;
-                    SelectedEmployee.Password = Password; // Uwaga: W rzeczywistej aplikacji haszuj hasło
+                    SelectedEmployee.Password = Password; 
                     SelectedEmployee.Phone = Phone;
                     SelectedEmployee.Email = Email;
                     SelectedEmployee.HireDate = HireDate;
@@ -330,7 +273,7 @@ namespace SalonKosmetycznyApp.ViewModel
                     _employeeService.UpdateEmployee(SelectedEmployee);
                     LoadData();
                     ClearForm();
-                    MessageBox.Show("Employee updated successfully.", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Pracownik zaktualizowany pomyślnie.", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             },
             o => SelectedEmployee != null &&
@@ -353,7 +296,7 @@ namespace SalonKosmetycznyApp.ViewModel
                     Employees.Remove(SelectedEmployee);
                     LoadData();
                     ClearForm();
-                    MessageBox.Show("Employee deleted successfully.", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Pracownik usunięty pomyślnie.", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             },
             o => SelectedEmployee != null
@@ -370,4 +313,29 @@ namespace SalonKosmetycznyApp.ViewModel
             return false;
         }
     }
+
+    public static class VisualTreeHelperExtensions
+    {
+        public static IEnumerable<T> FindVisualChildren<T>(this DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T t)
+                    {
+                        yield return t;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
+            }
+        }
+    }
+
+
 }

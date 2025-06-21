@@ -30,7 +30,6 @@
                 <TextBox Text="{Binding LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
             </Border>
 
-
             <TextBlock Text="Login:" FontSize="13" Margin="0,10,0,5"/>
             <Border BorderBrush="#483C32" Width="200" HorizontalAlignment="Left" Background="White"
                     BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
@@ -39,15 +38,15 @@
 
             <TextBlock Text="Hasło:" FontSize="13" Margin="0,10,0,5"/>
             <Border Width="200" HorizontalAlignment="Left" Background="White"
-                    BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
-                <PasswordBox x:Name="PasswordBox" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"
-                             vm:AddEmployeeViewModel.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
+                <PasswordBox x:Name="PasswordInput" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"
+                 PasswordChanged="PasswordBox_PasswordChanged"/>
             </Border>
 
             <TextBlock Text="Telefon:" FontSize="13" Margin="0,10,0,5"/>
             <Border Width="200" HorizontalAlignment="Left" Background="White"
                     BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
-                <TextBox Text="{Binding Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+                <TextBox Text="{Binding Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13" PreviewTextInput="PhoneTextBox_PreviewTextInput"/>
             </Border>
 
             <TextBlock Text="Email:" FontSize="13" Margin="0,10,0,5"/>
