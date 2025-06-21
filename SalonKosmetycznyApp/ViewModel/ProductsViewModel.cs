@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SalonKosmetycznyApp.ViewModel
@@ -65,6 +66,7 @@ namespace SalonKosmetycznyApp.ViewModel
                     ProductStock = value.ProductStock;
                 }
                 OnPropertyChanged(nameof(SelectedProduct));
+                CommandManager.InvalidateRequerySuggested();
             }
         }
 
@@ -72,13 +74,29 @@ namespace SalonKosmetycznyApp.ViewModel
         public ICommand AddProductCommand => _addProductCommand ??= new RelayCommand(
             o =>
             {
+                if (Products.Any(p =>
+                    p.Name.Trim().Equals(Name.Trim(), StringComparison.OrdinalIgnoreCase)))
+                {
+                    MessageBox.Show("Ten produkt już istnieje!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 var product = new Product(Name, Description, Price, ProductStock);
                 _productService.AddProduct(product);
                 LoadData();
                 ClearForm();
             },
-            o => !string.IsNullOrWhiteSpace(Name) && Price >= 0 && ProductStock >= 0
+            o =>
+                SelectedProduct == null &&
+                !string.IsNullOrWhiteSpace(Name) &&
+                !string.IsNullOrWhiteSpace(Description) &&
+                !Name.All(char.IsDigit) &&
+                !Description.All(char.IsDigit) &&
+                Price > 0 &&
+                ProductStock >= 0
+
         );
+
 
         public void LoadData()
         {
@@ -114,7 +132,15 @@ namespace SalonKosmetycznyApp.ViewModel
                     ClearForm();
                 }
             },
-            o => SelectedProduct != null && !string.IsNullOrWhiteSpace(Name) && Price >= 0 && ProductStock >= 0
+            o =>
+                SelectedProduct != null &&
+                !string.IsNullOrWhiteSpace(Name) &&
+                !string.IsNullOrWhiteSpace(Description) &&
+                !Name.All(char.IsDigit) &&
+                !Description.All(char.IsDigit) &&
+                Price > 0 &&
+                ProductStock >= 0
+
         );
 
         private ICommand _deleteProductCommand;

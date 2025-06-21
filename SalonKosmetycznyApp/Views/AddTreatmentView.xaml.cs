@@ -40,5 +40,13 @@ namespace SalonKosmetycznyApp.Views
             }
         }
 
+        private void TreatmentsListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (DataContext is AddTreatmentViewModel vm)
+            {
+                vm.ClearForm();
+            }
+        }
+
     }
 }

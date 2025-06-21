@@ -134,25 +134,55 @@ namespace SalonKosmetycznyApp.Services
         }
 
 
-        public void UpdateTreatment(Treatment treatment)
+        public void UpdateTreatment(Treatment updatedTreatment)
         {
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
+            using var transaction = conn.BeginTransaction();
 
-            var cmd = new MySqlCommand(@"
-                UPDATE treatments 
-                SET name = @name, description = @desc, duration_minutes = @duration, price = @price, type = @type 
-                WHERE id = @id", conn);
+            try
+            {
+                var updateCmd = new MySqlCommand(@"
+            UPDATE treatments 
+            SET name = @name, 
+                description = @description, 
+                duration_minutes = @duration, 
+                price = @price, 
+                type = @type
+            WHERE id = @id", conn, transaction);
 
-            cmd.Parameters.AddWithValue("@name", treatment.Name);
-            cmd.Parameters.AddWithValue("@desc", treatment.Description);
-            cmd.Parameters.AddWithValue("@duration", (int)treatment.Duration.TotalMinutes);
-            cmd.Parameters.AddWithValue("@price", treatment.Price);
-            cmd.Parameters.AddWithValue("@type", treatment.TreatmentType.ToString());
-            cmd.Parameters.AddWithValue("@id", treatment.Id);
+                updateCmd.Parameters.AddWithValue("@name", updatedTreatment.Name);
+                updateCmd.Parameters.AddWithValue("@description", updatedTreatment.Description);
+                updateCmd.Parameters.AddWithValue("@duration", (int)updatedTreatment.Duration.TotalMinutes);
+                updateCmd.Parameters.AddWithValue("@price", updatedTreatment.Price);
+                updateCmd.Parameters.AddWithValue("@type", updatedTreatment.TreatmentType.ToString());
+                updateCmd.Parameters.AddWithValue("@id", updatedTreatment.Id);
+                updateCmd.ExecuteNonQuery();
 
-            cmd.ExecuteNonQuery();
+                var deleteRelationsCmd = new MySqlCommand(
+                    "DELETE FROM treatment_products WHERE treatment_id = @id", conn, transaction);
+                deleteRelationsCmd.Parameters.AddWithValue("@id", updatedTreatment.Id);
+                deleteRelationsCmd.ExecuteNonQuery();
+
+                foreach (var product in updatedTreatment.Products)
+                {
+                    var insertRelationCmd = new MySqlCommand(
+                        "INSERT INTO treatment_products (treatment_id, product_id) VALUES (@tid, @pid)", conn, transaction);
+                    insertRelationCmd.Parameters.AddWithValue("@tid", updatedTreatment.Id);
+                    insertRelationCmd.Parameters.AddWithValue("@pid", product.Id);
+                    insertRelationCmd.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
+
+
 
         public void LinkProductToTreatment(int treatmentId, int productId)
         {
@@ -171,11 +201,28 @@ namespace SalonKosmetycznyApp.Services
         {
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
+            using var transaction = conn.BeginTransaction();
 
-            var cmd = new MySqlCommand("DELETE FROM treatments WHERE id = @id", conn);
-            cmd.Parameters.AddWithValue("@id", treatmentId);
+            try
+            {
+                var deleteRelationsCmd = new MySqlCommand(
+                    "DELETE FROM treatment_products WHERE treatment_id = @id", conn, transaction);
+                deleteRelationsCmd.Parameters.AddWithValue("@id", treatmentId);
+                deleteRelationsCmd.ExecuteNonQuery();
 
-            cmd.ExecuteNonQuery();
+                var deleteTreatmentCmd = new MySqlCommand(
+                    "DELETE FROM treatments WHERE id = @id", conn, transaction);
+                deleteTreatmentCmd.Parameters.AddWithValue("@id", treatmentId);
+                deleteTreatmentCmd.ExecuteNonQuery();
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
+
     }
 }

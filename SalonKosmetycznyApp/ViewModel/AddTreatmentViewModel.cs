@@ -175,7 +175,17 @@ namespace SalonKosmetycznyApp.ViewModel
                 LoadData();
                 ClearForm();
             },
-            o => !string.IsNullOrWhiteSpace(Name) && DurationMinutes > 0 && Price > 0
+            o =>
+                SelectedTreatment == null &&
+                !string.IsNullOrWhiteSpace(Name) &&
+                !string.IsNullOrWhiteSpace(Description) &&
+                !decimal.TryParse(Name, out _) &&
+                !decimal.TryParse(Description, out _) &&
+                DurationMinutes > 0 &&
+                Price > 0 &&
+                SelectedProducts != null &&
+                SelectedProducts.Any()
+
         );
 
         public ICommand UpdateTreatmentCommand => new RelayCommand(
@@ -195,7 +205,17 @@ namespace SalonKosmetycznyApp.ViewModel
                     ClearForm();
                 }
             },
-            o => _selectedTreatment != null && !string.IsNullOrWhiteSpace(Name)
+            o =>
+                _selectedTreatment != null &&
+                !string.IsNullOrWhiteSpace(Name) &&
+                !string.IsNullOrWhiteSpace(Description) &&
+                !decimal.TryParse(Name, out _) &&
+                !decimal.TryParse(Description, out _) &&
+                DurationMinutes > 0 &&
+                Price > 0 &&
+                SelectedProducts != null &&
+                SelectedProducts.Any()
+
         );
 
         public ICommand DeleteTreatmentCommand => new RelayCommand(

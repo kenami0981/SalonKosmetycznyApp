@@ -52,6 +52,21 @@ namespace SalonKosmetycznyApp.Views
                 MessageBoxImage.Warning);
         }
 
+        private void ProductListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
+            if (ProductListBox.SelectedItem != null)
+            {
+                ProductListBox.SelectedItem = null;
+            }
+
+            if (DataContext is ProductsViewModel viewModel)
+            {
+                viewModel.ClearForm();
+            }
+        }
+
+
 
     }
 }

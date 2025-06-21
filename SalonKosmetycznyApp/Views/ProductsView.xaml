@@ -64,7 +64,8 @@
 
         </StackPanel>
 
-        <ListBox Grid.Column="1" Margin="0 90 15 0" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}">
+        <ListBox x:Name="ProductListBox" Grid.Column="1" Margin="0 90 15 0" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
+         MouseDoubleClick="ProductListBox_MouseDoubleClick">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Margin="5">
