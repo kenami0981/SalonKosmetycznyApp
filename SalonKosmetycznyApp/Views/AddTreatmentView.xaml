@@ -4,11 +4,105 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SalonKosmetycznyApp.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Grid Margin="0 30 0 0">
-            <Label Content="tritment"/>
+             mc:Ignorable="d" d:DesignWidth="800" Height="582">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <Grid Background="#FFFFF0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Label Margin="0 30 0 0" Content="Zabiegi" HorizontalAlignment="Center"
+               Grid.ColumnSpan="2" FontSize="45" Panel.ZIndex="1" FontWeight="Bold" />
+
+        <StackPanel Margin="15 90 0 0" Grid.Column="0">
+
+            <TextBlock Text="Nazwa zabiegu:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" Width="200" Background="White"
+                    BorderThickness="1.5" CornerRadius="8">
+                <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Opis:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+                    BorderThickness="1.5" CornerRadius="8">
+                <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Czas trwania (min):" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+                    BorderThickness="1.5" CornerRadius="8">
+                <TextBox Text="{Binding DurationMinutes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Cena (zł):" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+                    BorderThickness="1.5" CornerRadius="8">
+                <TextBox Text="{Binding Price, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+            <TextBlock Text="Typ zabiegu:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+        BorderThickness="1.5" CornerRadius="8">
+                <ComboBox ItemsSource="{Binding AvailableTreatmentTypes}"
+              SelectedItem="{Binding TreatmentType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+              Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Produkty wykorzystywane:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+        BorderThickness="1.5" CornerRadius="8">
+                <ListBox x:Name="ProductsListBox"
+             ItemsSource="{Binding AllProducts}"
+             SelectionMode="Multiple"
+             DisplayMemberPath="Name"
+             SelectionChanged="ProductsListBox_SelectionChanged"
+             BorderThickness="0"
+             Background="Transparent"
+             Height="100"
+             Padding="5"/>
+            </Border>
+
+
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+                    BorderThickness="1" CornerRadius="8" Margin="0,15,0,0">
+                <Button Command="{Binding AddTreatmentCommand}" Content="Dodaj"
+                        Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+                    BorderThickness="1" CornerRadius="8" Margin="0,15,0,0">
+                <Button Command="{Binding UpdateTreatmentCommand}" Content="Zapisz zmiany"
+                        Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+
+            <Border Width="200" Background="White" BorderBrush="#483C32"
+                    BorderThickness="1" CornerRadius="8" Margin="0,15,0,0">
+                <Button Command="{Binding DeleteTreatmentCommand}" Content="Usuń"
+                        Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+        </StackPanel>
+
+        <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                Margin="0 115 15 0" Background="White" BorderBrush="#483C32"
+                BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
+            <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                     Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+        </Border>
+
+            <ListBox BorderBrush="Transparent"
+         Background="#FFFFF0"
+         Grid.Column="1"
+         Margin="0 160 15 0"
+         ItemsSource="{Binding Treatments}"
+         SelectedItem="{Binding SelectedTreatment, Mode=TwoWay}"
+         MouseDoubleClick="TreatmentsListBox_MouseDoubleClick">
+            </ListBox>
+
+
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </UserControl>
