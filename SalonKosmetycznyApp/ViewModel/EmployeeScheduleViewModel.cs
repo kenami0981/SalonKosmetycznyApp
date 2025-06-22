@@ -18,7 +18,7 @@ namespace SalonKosmetycznyApp.ViewModel
 {
     internal class EmployeeScheduleViewModel : BaseViewModel
     {
-        public List<string> Employees { get; } = new() { "Anna Kowalska", "Jan Nowak", "Julia Nowicka" };
+        public ObservableCollection<string> Employees { get; } = new ObservableCollection<string>();
         public List<TimeSpan> Hours { get; } = new()
 {
     new TimeSpan(8, 0, 0),
@@ -50,8 +50,9 @@ namespace SalonKosmetycznyApp.ViewModel
                 LoadData();
             }
             private readonly ScheduleService _scheduleService = new ScheduleService();
+        private readonly EmployeeService _employeeService = new EmployeeService();
 
-            public ObservableCollection<Schedule> WorkSchedule { get; } = new ObservableCollection<Schedule>();
+        public ObservableCollection<Schedule> WorkSchedule { get; } = new ObservableCollection<Schedule>();
 
             private ICollectionView _scheduleView;
         public ICollectionView ScheduleView
@@ -64,8 +65,18 @@ namespace SalonKosmetycznyApp.ViewModel
                 }
             }
 
+        private void LoadEmployees()
+        {
+            Employees.Clear();
+            var employeesFromDb = _employeeService.GetAllEmployees();
 
-            public void LoadData()
+            foreach (var employee in employeesFromDb)
+            {
+                string fullName = $"{employee.FirstName} {employee.LastName}";
+                Employees.Add(fullName);
+            }
+        }
+        public void LoadData()
             {
                 WorkSchedule.Clear();
                 var scheduleFromDb = _scheduleService.GetAllSchedules();
@@ -73,6 +84,7 @@ namespace SalonKosmetycznyApp.ViewModel
                     WorkSchedule.Add(schedule);
 
                 InitializeScheduleView();
+            LoadEmployees();
             }
             public void ClearForm()
             {
@@ -216,7 +228,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 }
             },
             o => {
-                return StartDate != null & EmployeeName != null & StartTime != null & EndTime != null & StartTime < EndTime;
+                return StartDate != null & EmployeeName != null & StartTime != null & EndTime != null & StartTime < EndTime && _selectedSchedule!=null;
             }
         );
 
