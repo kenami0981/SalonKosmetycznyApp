@@ -4,31 +4,30 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SalonKosmetycznyApp.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="900">
+             mc:Ignorable="d" d:DesignWidth="900" Height="702">
     <Grid Background="#FFFFF0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Label Margin="0 30 0 0" Content="Client" HorizontalAlignment="Center" Grid.ColumnSpan="2" FontSize="45" Panel.ZIndex="1" FontWeight="Bold"/>
-            <StackPanel Margin="15 90 0 0" Grid.Column="0">
+        <StackPanel Margin="15 90 0 0" Grid.Column="0">
 
-            
+
             <TextBlock Text="Imię:" FontSize="13" Margin="0,10,0,5"/>
             <Border BorderBrush="#483C32" Width="200" HorizontalAlignment="Left" Background="White"
              BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
                 <TextBox Text="{Binding ClientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
             </Border>
-                
-                
+
+
             <TextBlock Text="Nazwisko:" FontSize="13" Margin="0,10,0,5"/>
             <Border Width="200" HorizontalAlignment="Left" Background="White"
 BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
                 <TextBox Text ="{Binding ClientSurname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
             </Border>
-                
-                
+
+
             <TextBlock Text="Płeć:" FontSize="13" Margin="0,10,0,5"/>
             <Border Background="White" Width="115" HorizontalAlignment="Left" BorderBrush="#483C32" BorderThickness="1.5"
                     CornerRadius="8" SnapsToDevicePixels="True">
@@ -72,7 +71,7 @@ BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels
             <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
         </Border>
         <ListBox BorderBrush="Transparent" Background ="#FFFFF0" Grid.Column="1" Margin="0 160 15 0" ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}">
-            
+
         </ListBox>
 
 
