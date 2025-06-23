@@ -6,7 +6,90 @@
              xmlns:local="clr-namespace:SalonKosmetycznyApp.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Label Content="skdźul"></Label> 
+    <Grid Background="#FFFFF0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Label Margin="0 30 0 0" Content="Grafik pracowników" HorizontalAlignment="Center" Grid.ColumnSpan="2" FontSize="45" FontWeight="Bold"/>
+        <StackPanel Margin="15 90 0 0" Grid.Column="0">
+
+
+            <TextBlock Text="Pracownik:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" Width="200" Background="White" HorizontalAlignment="Left"
+        BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
+                <ComboBox ItemsSource="{Binding Employees}"
+              SelectedItem="{Binding EmployeeName, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+              Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Data rozpoczęcia:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" Width="200" Background="White"
+        BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True" HorizontalAlignment="Left">
+                <DatePicker SelectedDate="{Binding StartDate, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="10,5"
+                FontSize="13"/>
+            </Border>
+            <TextBlock Text="Godzina:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" Width="200" Background="White"
+        BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True" HorizontalAlignment="Left">
+                <ComboBox ItemsSource="{Binding Hours}"
+              SelectedItem="{Binding StartTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+              Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+            
+            <TextBlock Text="Godzina zakończenia:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" Width="200" Background="White"
+BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True" HorizontalAlignment="Left">
+                <ComboBox ItemsSource="{Binding Hours}"
+      SelectedItem="{Binding EndTime, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+      Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,15,0,0">
+                <Button Command="{Binding AddScheduleCommand}" Content="Dodaj" Background="#adada3" 
+    BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,15,0,0">
+                <Button Command="{Binding UpdateScheduleCommand}" Content="Zapisz zmiany" Background="#adada3" 
+    BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+            <Border Width="200" HorizontalAlignment="Left" Background="White"
+BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,15,0,0">
+                <Button Command="{Binding DeleteScheduleCommand}" Content="Usuń" Background="#adada3" 
+    BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+
+        </StackPanel>
+        <ListBox BorderBrush="Transparent" Background ="#FFFFF0" Grid.Column="1" Margin="0 100 15 0" ItemsSource="{Binding WorkSchedule}" SelectedItem="{Binding SelectedSchedule, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+    <DataTemplate>
+        <StackPanel Margin="5">
+            <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding EmployeeName}" />
+
+            <TextBlock>
+                <Run Text="Data: " />
+                <Run Text="{Binding StartDate}" />
+            </TextBlock>
+
+            <TextBlock>
+                <Run Text="Godzina: " />
+                  <Run Text="{Binding StartTime, StringFormat=hh\\:mm}" />
+                <Run Text=" - " />
+                <Run Text="{Binding EndTime, StringFormat=hh\\:mm}" />
+            </TextBlock>
+        </StackPanel>
+    </DataTemplate>
+</ListBox.ItemTemplate>
+        </ListBox>
+
+
+
+
+
+
     </Grid>
 </UserControl>
