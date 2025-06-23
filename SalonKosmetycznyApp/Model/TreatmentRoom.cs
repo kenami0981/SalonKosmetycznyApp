@@ -8,6 +8,22 @@ namespace SalonKosmetycznyApp.Model
 {
     public class TreatmentRoom
     {
-        // sale
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string RoomType { get; set; }
+        public string Availability { get; set; }
+
+        public TreatmentRoom(string name, string roomType, string availability)
+        {
+            Name = name;
+            RoomType = roomType;
+            Availability = availability;
+        }
+
+        public override string ToString()
+        {
+            return $"{Name}, {RoomType}, {Availability}";
+        }
     }
 }
+
