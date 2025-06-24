@@ -36,7 +36,7 @@ namespace SalonKosmetycznyApp.Services
             cmd.ExecuteNonQuery();
         }
 
-        public List<TreatmentRoom> GetAllRooms()
+        public List<TreatmentRoom> GetAllTreatmentRooms()
         {
             var rooms = new List<TreatmentRoom>();
 
@@ -64,8 +64,14 @@ namespace SalonKosmetycznyApp.Services
             return rooms;
         }
 
-        public void AddRoom(TreatmentRoom room)
+        public void AddTreatmentRoom(TreatmentRoom room)
         {
+            // Validate Availability
+            if (room.Availability != "Tak" && room.Availability != "Nie")
+            {
+                throw new ArgumentException("Availability must be either 'Tak' or 'Nie'.");
+            }
+
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
 
@@ -75,12 +81,12 @@ namespace SalonKosmetycznyApp.Services
 
             cmd.Parameters.AddWithValue("@name", room.Name ?? string.Empty);
             cmd.Parameters.AddWithValue("@type", room.RoomType ?? string.Empty);
-            cmd.Parameters.AddWithValue("@availability", room.Availability ?? "Nie");
+            cmd.Parameters.AddWithValue("@availability", room.Availability);
 
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateRoom(TreatmentRoom room)
+        public void UpdateTreatmentRoom(TreatmentRoom room)
         {
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
@@ -100,7 +106,7 @@ namespace SalonKosmetycznyApp.Services
             cmd.ExecuteNonQuery();
         }
 
-        public void DeleteRoom(int roomId)
+        public void DeleteTreatmentRoom(int roomId)
         {
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();

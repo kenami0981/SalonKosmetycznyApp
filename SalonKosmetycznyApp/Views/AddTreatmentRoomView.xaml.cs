@@ -12,17 +12,19 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SalonKosmetycznyApp.ViewModel;
 
 namespace SalonKosmetycznyApp.Views
 {
     /// <summary>
     /// Interaction logic for AddTreatmentRoomView.xaml
     /// </summary>
-    public partial class AddTreatmentRoomView : Page
+    public partial class AddTreatmentRoomView : UserControl
     {
         public AddTreatmentRoomView()
         {
             InitializeComponent();
+            this.DataContext = new TreatmentRoomViewModel();
         }
     }
 }

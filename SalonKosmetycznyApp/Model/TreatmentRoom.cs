@@ -12,7 +12,7 @@ namespace SalonKosmetycznyApp.Model
         public string Name { get; set; }
         public string RoomType { get; set; }
         public string Availability { get; set; }
-
+        public TreatmentRoom() { } 
         public TreatmentRoom(string name, string roomType, string availability)
         {
             Name = name;

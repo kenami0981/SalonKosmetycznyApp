@@ -43,7 +43,7 @@ namespace SalonKosmetycznyApp.Commands
             }
             else if (parameter.ToString() == "room")
             {
-                viewModel.SelectedViewModel = new AddRoomViewModel();
+                viewModel.SelectedViewModel = new TreatmentRoomViewModel();
             }
             else if (parameter.ToString() == "booking")
             {

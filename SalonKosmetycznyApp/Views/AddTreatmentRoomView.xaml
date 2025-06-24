@@ -27,10 +27,13 @@
 
             <TextBlock Text="Typ sali:" FontSize="13" Margin="0,10,0,5"/>
             <Border Width="200" BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White">
-                <TextBox Text="{Binding Type, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,5" Background="Transparent" FontSize="13"/>
+                <ComboBox ItemsSource="{Binding RoomTypeList}"
+          SelectedItem="{Binding RoomType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+          BorderThickness="0" Padding="10,5" Background="Transparent" FontSize="14" />
+
             </Border>
 
-            <TextBlock Text="Dostępność:" FontSize="13" Margin="0,10,0,5"/>
+            <TextBlock Text="Dostępna:" FontSize="13" Margin="0,10,0,5"/>
             <Border Width="115" BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White">
                 <ComboBox ItemsSource="{Binding AvailabilityList}"
                           SelectedItem="{Binding Availability, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
