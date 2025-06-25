@@ -24,6 +24,8 @@ namespace SalonKosmetycznyApp.ViewModel
         public AddEmployeeViewModel()
         {
             LoadData();
+            CheckEmployeeExistence();
+            IsLoggedIn = false; // Domyślnie niezalogowany
         }
 
         public ObservableCollection<Employee> Employees { get; } = new ObservableCollection<Employee>();
@@ -42,10 +44,43 @@ namespace SalonKosmetycznyApp.ViewModel
                 Employees.Add(employee);
         }
 
+        private bool _hasEmployees;
+        public bool HasEmployees
+        {
+            get => _hasEmployees;
+            set
+            {
+                if (_hasEmployees != value)
+                {
+                    _hasEmployees = value;
+                    OnPropertyChanged(nameof(HasEmployees));
+                }
+            }
+        }
+
+        private bool _isLoggedIn;
+        public bool IsLoggedIn
+        {
+            get => _isLoggedIn;
+            set
+            {
+                if (_isLoggedIn != value)
+                {
+                    _isLoggedIn = value;
+                    OnPropertyChanged(nameof(IsLoggedIn));
+                }
+            }
+        }
+
+        private void CheckEmployeeExistence()
+        {
+            HasEmployees = _employeeService.GetAllEmployees().Any();
+        }
+
         public void ClearForm()
         {
             Login = string.Empty;
-            Password = string.Empty; 
+            Password = string.Empty;
             Phone = string.Empty;
             Email = string.Empty;
             HireDate = null;
@@ -61,8 +96,6 @@ namespace SalonKosmetycznyApp.ViewModel
                 .FirstOrDefault();
             addEmployeeView?.ClearPasswordBox();
         }
-
-
 
         private string _login;
         public string Login
@@ -88,7 +121,6 @@ namespace SalonKosmetycznyApp.ViewModel
                 {
                     _password = value;
                     OnPropertyChanged(nameof(Password));
-
                 }
             }
         }
@@ -201,7 +233,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 if (_selectedEmployee != null)
                 {
                     Login = _selectedEmployee.Login;
-                    Password = _selectedEmployee.Password; // Pobranie istniejącego hasła
+                    Password = _selectedEmployee.Password;
                     Phone = _selectedEmployee.Phone;
                     Email = _selectedEmployee.Email;
                     HireDate = _selectedEmployee.HireDate;
@@ -222,10 +254,42 @@ namespace SalonKosmetycznyApp.ViewModel
             }
         }
 
+        private ICommand _loginCommand;
+        public ICommand LoginCommand => _loginCommand ??= new RelayCommand(
+            o =>
+            {
+                if (!HasEmployees)
+                {
+                    MessageBox.Show("Nie można się zalogować, ponieważ nie ma żadnych pracowników w bazie danych.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var employees = _employeeService.GetAllEmployees();
+                var employee = employees.FirstOrDefault(e => e.Login == Login && e.Password == Password);
+
+                if (employee != null)
+                {
+                    IsLoggedIn = true;
+                    MessageBox.Show("Logowanie udane! Witaj, " + employee.FirstName + " " + employee.LastName + "!", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ClearForm(); // Opcjonalne czyszczenie pól po zalogowaniu
+                }
+                else
+                {
+                    MessageBox.Show("Nieprawidłowy login lub hasło.", "Błąd logowania", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            },
+            o => HasEmployees && !string.IsNullOrWhiteSpace(Login) && !string.IsNullOrWhiteSpace(Password)
+        );
+
         private ICommand _addEmployeeCommand;
         public ICommand AddEmployeeCommand => _addEmployeeCommand ??= new RelayCommand(
             o =>
             {
+                if (!IsLoggedIn)
+                {
+                    MessageBox.Show("Musisz się najpierw zalogować, aby dodać pracownika.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
                 var employee = new Employee(
                     Login,
                     Password,
@@ -239,20 +303,11 @@ namespace SalonKosmetycznyApp.ViewModel
                 );
                 _employeeService.AddEmployee(employee);
                 LoadData();
-                ClearForm(); // Resetuje hasło na pusty string
-                (Application.Current.Windows
-            .OfType<Window>()
-            .FirstOrDefault(w => w is SalonKosmetycznyApp.Views.AddEmployeeView))?
-            .GetType()
-            .GetMethod("ClearPasswordBox")
-            ?.Invoke(
-                Application.Current.Windows.OfType<Window>()
-                .FirstOrDefault(w => w is SalonKosmetycznyApp.Views.AddEmployeeView),
-                null
-            );
+                ClearForm();
+                CheckEmployeeExistence();
                 MessageBox.Show("Pracownik dodany pomyślnie.", "", MessageBoxButton.OK, MessageBoxImage.Information);
             },
-            o => !string.IsNullOrWhiteSpace(Login) &&
+            o => IsLoggedIn && !string.IsNullOrWhiteSpace(Login) &&
                  !string.IsNullOrWhiteSpace(Password) &&
                  !string.IsNullOrWhiteSpace(Phone) &&
                  !string.IsNullOrWhiteSpace(Email) &&
@@ -265,10 +320,15 @@ namespace SalonKosmetycznyApp.ViewModel
         public ICommand UpdateEmployeeCommand => _updateEmployeeCommand ??= new RelayCommand(
             o =>
             {
+                if (!IsLoggedIn)
+                {
+                    MessageBox.Show("Musisz się najpierw zalogować, aby zaktualizować pracownika.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
                 if (SelectedEmployee != null)
                 {
                     SelectedEmployee.Login = Login;
-                    SelectedEmployee.Password = Password; 
+                    SelectedEmployee.Password = Password;
                     SelectedEmployee.Phone = Phone;
                     SelectedEmployee.Email = Email;
                     SelectedEmployee.HireDate = HireDate;
@@ -279,10 +339,11 @@ namespace SalonKosmetycznyApp.ViewModel
                     _employeeService.UpdateEmployee(SelectedEmployee);
                     LoadData();
                     ClearForm();
+                    CheckEmployeeExistence();
                     MessageBox.Show("Pracownik zaktualizowany pomyślnie.", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             },
-            o => SelectedEmployee != null &&
+            o => IsLoggedIn && SelectedEmployee != null &&
                  !string.IsNullOrWhiteSpace(Login) &&
                  !string.IsNullOrWhiteSpace(Password) &&
                  !string.IsNullOrWhiteSpace(Phone) &&
@@ -296,16 +357,22 @@ namespace SalonKosmetycznyApp.ViewModel
         public ICommand DeleteEmployeeCommand => _deleteEmployeeCommand ??= new RelayCommand(
             o =>
             {
+                if (!IsLoggedIn)
+                {
+                    MessageBox.Show("Musisz się najpierw zalogować, aby usunąć pracownika.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
                 if (SelectedEmployee != null)
                 {
                     _employeeService.DeleteEmployee(SelectedEmployee.Id);
                     Employees.Remove(SelectedEmployee);
                     LoadData();
                     ClearForm();
+                    CheckEmployeeExistence();
                     MessageBox.Show("Pracownik usunięty pomyślnie.", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             },
-            o => SelectedEmployee != null
+            o => IsLoggedIn && SelectedEmployee != null
         );
 
         protected bool SetProperty<T>(ref T field, T value, string propertyName = null)
@@ -342,6 +409,4 @@ namespace SalonKosmetycznyApp.ViewModel
             }
         }
     }
-
-
 }
