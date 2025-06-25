@@ -10,7 +10,7 @@
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Label Margin="0 30 0 0" Content="Client" HorizontalAlignment="Center" Grid.ColumnSpan="2" FontSize="45" Panel.ZIndex="1" FontWeight="Bold"/>
+        <Label Margin="0 30 0 0" Content="Klient" HorizontalAlignment="Center" Grid.ColumnSpan="2" FontSize="45" Panel.ZIndex="1" FontWeight="Bold"/>
         <StackPanel Margin="15 90 0 0" Grid.Column="0">
 
 

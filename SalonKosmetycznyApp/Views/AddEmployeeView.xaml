@@ -15,6 +15,8 @@
 
         <Label Margin="0 30 0 0" Content="Employee" HorizontalAlignment="Center" Grid.ColumnSpan="2" FontSize="45" Panel.ZIndex="1" FontWeight="Bold"/>
         <StackPanel Margin="15 90 0 0" Grid.Column="0">
+        <Label Margin="292,36,0,-6" Content="Pracownicy" HorizontalAlignment="Left" Grid.ColumnSpan="2" FontSize="45" Panel.ZIndex="1" FontWeight="Bold" Grid.RowSpan="2"/>
+        <StackPanel Margin="15 90 0 0" Grid.Column="0" Grid.RowSpan="2">
             <TextBlock Text="Imię:" FontSize="13" Margin="0,10,0,5"/>
             <Border BorderBrush="#483C32" Width="200" HorizontalAlignment="Left" Background="White"
         BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
