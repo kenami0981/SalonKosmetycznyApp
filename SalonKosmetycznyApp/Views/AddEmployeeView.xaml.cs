@@ -32,6 +32,15 @@ namespace SalonKosmetycznyApp.Views
         {
             PasswordInput.Password = string.Empty;
         }
+
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Blokuj cyfry (0-9)
+            if (char.IsDigit(e.Text, 0))
+            {
+                e.Handled = true; // Anuluj wprowadzenie cyfry
+            }
+        }
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is AddEmployeeViewModel viewModel && sender is PasswordBox passwordBox)
