@@ -1,4 +1,5 @@
-﻿using SalonKosmetycznyApp.Commands;
+﻿using MySqlX.XDevAPI;
+using SalonKosmetycznyApp.Commands;
 using SalonKosmetycznyApp.Model;
 using SalonKosmetycznyApp.Services;
 using SalonKosmetycznyApp.Views;
@@ -35,13 +36,58 @@ namespace SalonKosmetycznyApp.ViewModel
             "Aktywny",
             "Nieaktywny",
         };
+        public void InitializeEmployeesView()
+        {
+            EmployeeView= CollectionViewSource.GetDefaultView(Employees);
+            EmployeeView.Filter = FilterEmployees;
+        }
+        private ICollectionView _emplyeeView;
+        public ICollectionView EmployeeView
+        {
+            get => _emplyeeView;
+            private set
+            {
+                _emplyeeView = value;
+                OnPropertyChanged(nameof(EmployeeView));
+            }
+        }
+        private string _searchTerm;
+        public string SearchTerm
+        {
+            get => _searchTerm;
+            set
+            {
+                if (_searchTerm != value)
+                {
+                    _searchTerm = value;
+                    OnPropertyChanged(nameof(SearchTerm));
+                    _emplyeeView?.Refresh();
+                }
+            }
+        }
+        private bool FilterEmployees(object obj)
+        {
+            if (obj is Employee employee)
+            {
+                if (string.IsNullOrWhiteSpace(SearchTerm)) return true;
 
+                var term = SearchTerm.ToLower();
+                return employee.FirstName.ToLower().Contains(term)
+                    || employee.LastName.ToLower().Contains(term)
+                    || (employee.Status?.ToLower().Contains(term) ?? false)
+                    || employee.Phone.ToLower().Contains(term)
+                    || employee.Position.ToLower().Contains(term)
+                    || employee.Email.ToLower().Contains(term);
+            }
+            return false;
+        }
         private void LoadData()
         {
             Employees.Clear();
             var employeesFromDb = _employeeService.GetAllEmployees();
             foreach (var employee in employeesFromDb)
                 Employees.Add(employee);
+            InitializeEmployeesView();
         }
 
         private bool _hasEmployees;

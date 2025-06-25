@@ -64,7 +64,40 @@ namespace SalonKosmetycznyApp.ViewModel
                     OnPropertyChanged(nameof(ScheduleView));
                 }
             }
+        public void InitializeScheduleView()
+        {
+            ScheduleView = CollectionViewSource.GetDefaultView(WorkSchedule);
+            ScheduleView.Filter = FilterSchedule;
+        }
+        
+        private string _searchTerm;
+        public string SearchTerm
+        {
+            get => _searchTerm;
+            set
+            {
+                if (_searchTerm != value)
+                {
+                    _searchTerm = value;
+                    OnPropertyChanged(nameof(SearchTerm));
+                    _scheduleView?.Refresh();
+                }
+            }
+        }
+        private bool FilterSchedule(object obj)
+        {
+            if (obj is Schedule schedule)
+            {
+                if (string.IsNullOrWhiteSpace(SearchTerm)) return true;
 
+                var term = SearchTerm.ToLower();
+                return schedule.EmployeeName.ToLower().Contains(term)
+                    || schedule.StartDate.ToString("yyyy-MM-dd").ToLower().Contains(term)
+                    || schedule.StartDate.ToString("MM-dd-yyyy").ToLower().Contains(term)
+                    || schedule.StartDate.ToString("dd-MM-yyyy").ToLower().Contains(term);
+            }
+            return false;
+        }
         private void LoadEmployees()
         {
             Employees.Clear();
@@ -100,10 +133,6 @@ namespace SalonKosmetycznyApp.ViewModel
             OnPropertyChanged(nameof(SelectedSchedule));
         }
 
-            public void InitializeScheduleView()
-            {
-                ScheduleView = CollectionViewSource.GetDefaultView(WorkSchedule);
-            }
 
 
 
