@@ -32,29 +32,30 @@ namespace SalonKosmetycznyApp.Services
                     phone VARCHAR(20)
                 );
 
-                CREATE TABLE IF NOT EXISTS rooms (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
-                    type VARCHAR(50)
-                );
+                CREATE TABLE IF NOT EXISTS treatmentroom (  -- Używamy 'treatmentroom' zamiast 'rooms'
+        ID_Sali INT AUTO_INCREMENT PRIMARY KEY,
+        Nazwa VARCHAR(50) NOT NULL,
+        Typ_sali VARCHAR(50),
+        Dostepna ENUM('Tak', 'Nie') NOT NULL
+    );
 
                 CREATE TABLE IF NOT EXISTS employees (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     name VARCHAR(100) NOT NULL
                 );
-
                 CREATE TABLE IF NOT EXISTS appointments (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     client_id INT NOT NULL,
                     treatment_id INT NOT NULL,
-                    room_id INT NOT NULL,
+                    room_id INT NOT NULL,  -- Powiązanie z 'treatmentroom'
                     employee_id INT NOT NULL,
                     appointment_date DATETIME NOT NULL,
                     FOREIGN KEY (client_id) REFERENCES clients(id),
                     FOREIGN KEY (treatment_id) REFERENCES treatments(id),
-                    FOREIGN KEY (room_id) REFERENCES rooms(id),
+                    FOREIGN KEY (room_id) REFERENCES treatmentroom(ID_Sali),  -- Zmieniamy 'rooms' na 'treatmentroom'
                     FOREIGN KEY (employee_id) REFERENCES employees(id)
-                );
+
+    );
             ";
 
                 using var cmd = new MySqlCommand(createTablesQuery, conn);
@@ -144,7 +145,7 @@ namespace SalonKosmetycznyApp.Services
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
 
-            var cmd = new MySqlCommand("SELECT ID_Sali, Nazwa, Typ_sali, Dostepna FROM TreatmentRoom", conn);
+            var cmd = new MySqlCommand("SELECT ID_Sali, Nazwa, Typ_sali, Dostepna FROM treatmentroom", conn);
             using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
@@ -221,6 +222,83 @@ namespace SalonKosmetycznyApp.Services
 
                 cmd.ExecuteNonQuery();
             }
+        public void AddAppointment(Reservation reservation)
+        {
+            using var conn = new MySqlConnection(_connectionString);
+            conn.Open();
+
+            // Zmieniamy 'rooms' na 'treatmentroom' w zapytaniu SQL
+            var cmd = new MySqlCommand(@"
+        INSERT INTO appointments (client_id, treatment_id, room_id, employee_id, appointment_date)
+        VALUES (@clientId, @treatmentId, @roomId, @employeeId, @appointmentDate)", conn);
+
+            // Dodajemy parametry
+            cmd.Parameters.AddWithValue("@clientId", reservation.Client.Id);  // Wartość z obiektu Client
+            cmd.Parameters.AddWithValue("@treatmentId", reservation.Treatment.Id);  // Wartość z obiektu Treatment
+            cmd.Parameters.AddWithValue("@roomId", reservation.TreatmentRoom.Id);  // Wartość z obiektu TreatmentRoom
+            cmd.Parameters.AddWithValue("@employeeId", reservation.Employee.Id);  // Wartość z obiektu Employee
+            cmd.Parameters.AddWithValue("@appointmentDate", reservation.AppointmentDate);  // Wartość z obiektu Reservation
+
+            // Wykonaj zapytanie
+            cmd.ExecuteNonQuery();
+        }
+
+        //        public List<Reservation> GetAllAppointments()
+        //        {
+        //            var appointments = new List<Reservation>();
+
+        //            using var conn = new MySqlConnection(_connectionString);
+        //            conn.Open();
+
+        //            var cmd = new MySqlCommand(@"
+        //            SELECT a.id, c.name AS client_name, t.name AS treatment_name, 
+        //                   r.id AS room_id, r.name AS room_name, r.type AS room_type, 
+        //                   e.name AS employee_name, a.appointment_date
+        //            FROM appointments a
+        //            JOIN clients c ON a.client_id = c.id
+        //            JOIN treatments t ON a.treatment_id = t.id
+        //JOIN treatmentroom tr ON a.room_id = tr.ID_Sali
+        //            JOIN employees e ON a.employee_id = e.id", conn);
+
+        //            using var reader = cmd.ExecuteReader();
+
+        //            while (reader.Read())
+        //            {
+        //                var reservation = new Reservation
+        //                {
+        //                    Id = reader.GetInt32("id"),
+        //                    Client = new Client(
+        //                        reader.GetString("client_name"),  // clientName
+        //                        reader.GetString("client_surname"),  // clientSurname
+        //                        reader.GetString("client_number"),  // clientNumber
+        //                        reader.IsDBNull(reader.GetOrdinal("client_gender")) ? null : reader.GetString("client_gender"),  // clientGender
+        //                        reader.IsDBNull(reader.GetOrdinal("client_email")) ? null : reader.GetString("client_email"),  // clientEmail
+        //                        reader.IsDBNull(reader.GetOrdinal("client_note")) ? null : reader.GetString("client_note")  // clientNote
+        //                    ),
+        //                    Treatment = new Treatment(
+        //                        reader.GetString("treatment_name"), // name
+        //                        reader.IsDBNull(reader.GetOrdinal("treatment_description")) ? "" : reader.GetString("treatment_description"), // description
+        //                        TimeSpan.FromMinutes(reader.GetInt32("treatment_duration_minutes")), // duration
+        //                        reader.GetDecimal("treatment_price"), // price
+        //                        Enum.TryParse<TreatmentType>(reader.GetString("treatment_type"), out var treatmentType) ? treatmentType : TreatmentType.Twarz // type
+        //                    ),
+        //                    TreatmentRoom = new TreatmentRoom
+        //                    {
+        //                        Id = reader.GetInt32("room_id"),
+        //                        Name = reader.GetString("room_name"),
+        //                        RoomType = reader.GetString("room_type")
+        //                    },
+        //                    EmployeeName = reader.GetString("employee_name"),
+        //                    AppointmentDate = reader.GetDateTime("appointment_date")
+        //                };
+
+        //                appointments.Add(reservation);
+        //            }
+
+
+
+        //            return appointments;
+        //        }
 
         public List<Reservation> GetAllAppointments()
         {
@@ -230,12 +308,25 @@ namespace SalonKosmetycznyApp.Services
             conn.Open();
 
             var cmd = new MySqlCommand(@"
-        SELECT a.id, c.name AS client_name, t.name AS treatment_name, 
-               r.name AS room_name, e.name AS employee_name, a.appointment_date
+        SELECT 
+            a.id, a.appointment_date,
+            c.id AS client_id, c.name AS client_name, c.surname AS client_surname, 
+            c.gender AS client_gender, c.phone AS client_number, 
+            c.email AS client_email, c.note AS client_note,
+
+            t.id AS treatment_id, t.name AS treatment_name, 
+            t.description AS treatment_description, 
+            t.duration_minutes AS treatment_duration_minutes, 
+            t.price AS treatment_price, t.type AS treatment_type,
+
+            r.ID_Sali AS room_id, r.Nazwa AS room_name, r.Typ_sali AS room_type,
+
+            e.Id AS employee_id, e.FirstName, e.LastName
+
         FROM appointments a
         JOIN clients c ON a.client_id = c.id
         JOIN treatments t ON a.treatment_id = t.id
-        JOIN rooms r ON a.room_id = r.id
+        JOIN treatmentroom r ON a.room_id = r.ID_Sali
         JOIN employees e ON a.employee_id = e.id", conn);
 
             using var reader = cmd.ExecuteReader();
@@ -245,11 +336,47 @@ namespace SalonKosmetycznyApp.Services
                 var reservation = new Reservation
                 {
                     Id = reader.GetInt32("id"),
-                    ClientName = reader.GetString("client_name"),
-                    TreatmentName = reader.GetString("treatment_name"),
-                    RoomName = reader.GetString("room_name"),
-                    EmployeeName = reader.GetString("employee_name"),
-                    AppointmentDate = reader.GetDateTime("appointment_date")
+                    AppointmentDate = reader.GetDateTime("appointment_date"),
+
+                    Client = new Client(
+                        reader.GetString("client_name"),
+                        reader.GetString("client_surname"),
+                        reader.GetString("client_number"),
+                        reader.IsDBNull(reader.GetOrdinal("client_gender")) ? null : reader.GetString("client_gender"),
+                        reader.IsDBNull(reader.GetOrdinal("client_email")) ? null : reader.GetString("client_email"),
+                        reader.IsDBNull(reader.GetOrdinal("client_note")) ? null : reader.GetString("client_note")
+                    )
+                    {
+                        Id = reader.GetInt32("client_id")
+                    },
+
+                    Treatment = new Treatment(
+                        reader.GetString("treatment_name"),
+                        reader.IsDBNull(reader.GetOrdinal("treatment_description")) ? "" : reader.GetString("treatment_description"),
+                        TimeSpan.FromMinutes(reader.GetInt32("treatment_duration_minutes")),
+                        reader.GetDecimal("treatment_price"),
+                        Enum.TryParse<TreatmentType>(reader.GetString("treatment_type"), out var treatmentType) ? treatmentType : TreatmentType.Twarz
+                    )
+                    {
+                        Id = reader.GetInt32("treatment_id")
+                    },
+
+                    TreatmentRoom = new TreatmentRoom
+                    {
+                        Id = reader.GetInt32("room_id"),
+                        Name = reader.GetString("room_name"),
+                        RoomType = reader.GetString("room_type")
+                    },
+
+                    Employee = new Employee(
+                        login: "", password: "", phone: "", email: "",
+                        hireDate: null, position: "", status: "",
+                        firstName: reader.GetString("FirstName"),
+                        lastName: reader.GetString("LastName")
+                    )
+                    {
+                        Id = reader.GetInt32("employee_id")
+                    }
                 };
 
                 appointments.Add(reservation);
@@ -257,6 +384,42 @@ namespace SalonKosmetycznyApp.Services
 
             return appointments;
         }
+        public void DeleteAppointment(int reservationId)
+        {
+            using var conn = new MySqlConnection(_connectionString);
+            conn.Open();
+
+            var cmd = new MySqlCommand("DELETE FROM appointments WHERE id = @id", conn);
+            cmd.Parameters.AddWithValue("@id", reservationId);
+            cmd.ExecuteNonQuery();
+        }
+
+        public void UpdateAppointment(Reservation reservation)
+        {
+            using var conn = new MySqlConnection(_connectionString);
+            conn.Open();
+
+            var cmd = new MySqlCommand(@"
+        UPDATE appointments
+        SET client_id = @clientId,
+            treatment_id = @treatmentId,
+            room_id = @roomId,
+            employee_id = @employeeId,
+            appointment_date = @appointmentDate
+        WHERE id = @id", conn);
+
+            cmd.Parameters.AddWithValue("@clientId", reservation.Client.Id);
+            cmd.Parameters.AddWithValue("@treatmentId", reservation.Treatment.Id);
+            cmd.Parameters.AddWithValue("@roomId", reservation.TreatmentRoom.Id);
+            cmd.Parameters.AddWithValue("@employeeId", reservation.Employee.Id);
+            cmd.Parameters.AddWithValue("@appointmentDate", reservation.AppointmentDate);
+            cmd.Parameters.AddWithValue("@id", reservation.Id);
+
+            cmd.ExecuteNonQuery();
+        }
+
+
+
 
     }
 }

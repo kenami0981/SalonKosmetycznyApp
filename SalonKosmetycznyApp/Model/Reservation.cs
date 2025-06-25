@@ -9,31 +9,33 @@ namespace SalonKosmetycznyApp.Model
     public class Reservation
     {
         public int Id { get; set; }
-        public string ClientName { get; set; }
-        public string TreatmentName { get; set; }
-        public string RoomName { get; set; }
-        public string EmployeeName { get; set; }
+        public Client Client { get; set; }  // Obiekt Client zamiast ClientName
+        public Treatment Treatment { get; set; }  // Obiekt Treatment zamiast TreatmentName
+        public TreatmentRoom TreatmentRoom { get; set; }  // Obiekt TreatmentRoom zamiast RoomName
+        public Employee Employee { get; set; }  // Obiekt Employee zamiast EmployeeName
         public DateTime AppointmentDate { get; set; }
+        public string EmployeeName { get; internal set; }
 
-        // Konstruktor domyślny - przydatny np. do deserializacji lub gdy chcesz ustawiać właściwości osobno
+
+        // Konstruktor domyślny
         public Reservation()
         {
         }
 
-        // Konstruktor parametryczny - do szybkiego tworzenia w pełni wypełnionego obiektu
-        public Reservation(int id, string clientName, string treatmentName, string roomName, string employeeName, DateTime appointmentDate)
+        // Konstruktor parametryczny
+        public Reservation(int id, Client client, Treatment treatment, TreatmentRoom treatmentRoom, Employee employee, DateTime appointmentDate)
         {
             Id = id;
-            ClientName = clientName;
-            TreatmentName = treatmentName;
-            RoomName = roomName;
-            EmployeeName = employeeName;
+            Client = client;
+            Treatment = treatment;
+            TreatmentRoom = treatmentRoom;
+            Employee = employee;
             AppointmentDate = appointmentDate;
         }
 
         public override string ToString()
         {
-            return $"{ClientName} - {TreatmentName} in {RoomName} with {EmployeeName} on {AppointmentDate}";
+            return $"{Client.ClientName} - {Treatment.Name} in {TreatmentRoom.Name} with {Employee.FirstName} on {AppointmentDate}";
         }
     }
 }

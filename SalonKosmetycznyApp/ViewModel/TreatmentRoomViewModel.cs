@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using SalonKosmetycznyApp.Commands;
 using SalonKosmetycznyApp.Model;
+using System.Windows;
 
 namespace SalonKosmetycznyApp.ViewModel
 {
@@ -124,20 +125,18 @@ namespace SalonKosmetycznyApp.ViewModel
         public ICommand AddTreatmentRoomCommand { get; }
         public ICommand UpdateTreatmentRoomCommand { get; }
         public ICommand DeleteTreatmentRoomCommand { get; }
-
         private void AddTreatmentRoom()
         {
             if (string.IsNullOrWhiteSpace(Name) ||
                 string.IsNullOrWhiteSpace(RoomType) ||
                 string.IsNullOrWhiteSpace(Availability) ||
                 (Availability != "Tak" && Availability != "Nie"))
-
-                {
-                    System.Windows.MessageBox.Show(
+            {
+                MessageBox.Show(
                     "Uzupełnij wszystkie wymagane pola.",
                     "Błąd walidacji",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
                 return;
             }
 
@@ -151,24 +150,68 @@ namespace SalonKosmetycznyApp.ViewModel
                 };
 
                 _treatmentRoomService.AddTreatmentRoom(newRoom);
-                LoadData();
-                ClearForm();
-                System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
-
+                LoadData();  // Załaduj dane, aby lista pokoi była zaktualizowana
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(
+                MessageBox.Show(
                     "Wystąpił błąd podczas dodawania sali:\n" + ex.Message,
                     "Błąd",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Error);
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
-
-            ClearForm();
-            System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
-
+            finally
+            {
+                ClearForm();  // Resetuj formularz po zakończeniu operacji
+                System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
+            }
         }
+
+
+        //private void AddTreatmentRoom()
+        //{
+        //    if (string.IsNullOrWhiteSpace(Name) ||
+        //        string.IsNullOrWhiteSpace(RoomType) ||
+        //        string.IsNullOrWhiteSpace(Availability) ||
+        //        (Availability != "Tak" && Availability != "Nie"))
+
+        //        {
+        //            System.Windows.MessageBox.Show(
+        //            "Uzupełnij wszystkie wymagane pola.",
+        //            "Błąd walidacji",
+        //            System.Windows.MessageBoxButton.OK,
+        //            System.Windows.MessageBoxImage.Warning);
+        //        return;
+        //    }
+
+        //    try
+        //    {
+        //        var newRoom = new TreatmentRoom
+        //        {
+        //            Name = this.Name,
+        //            RoomType = this.RoomType,
+        //            Availability = this.Availability
+        //        };
+
+        //        _treatmentRoomService.AddTreatmentRoom(newRoom);
+        //        LoadData();
+        //        ClearForm();
+        //        System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Windows.MessageBox.Show(
+        //            "Wystąpił błąd podczas dodawania sali:\n" + ex.Message,
+        //            "Błąd",
+        //            System.Windows.MessageBoxButton.OK,
+        //            System.Windows.MessageBoxImage.Error);
+        //    }
+
+        //    ClearForm();
+        //    System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
+
+        //}
 
 
 
@@ -182,7 +225,7 @@ namespace SalonKosmetycznyApp.ViewModel
 
             _treatmentRoomService.UpdateTreatmentRoom(SelectedTreatmentRoom);
             LoadData();
-            ClearForm();
+            //ClearForm();
         }
 
         private void DeleteTreatmentRoom()
@@ -193,6 +236,15 @@ namespace SalonKosmetycznyApp.ViewModel
             LoadData();
             ClearForm();
         }
+        //public void LoadData()
+        //{
+        //    TreatmentRooms.Clear();
+        //    var roomsFromDb = _treatmentRoomService.GetAllTreatmentRooms();
+        //    foreach (var room in roomsFromDb)
+        //    {
+        //        TreatmentRooms.Add(room);
+        //    }
+        //}
         public void LoadData()
         {
             TreatmentRooms.Clear();
@@ -201,21 +253,24 @@ namespace SalonKosmetycznyApp.ViewModel
             {
                 TreatmentRooms.Add(room);
             }
+            // Dodaj logowanie
+            System.Diagnostics.Debug.WriteLine($"Loaded {TreatmentRooms.Count} rooms.");
         }
+
+
 
         public void ClearForm()
         {
-            _isClearing = true;
+           
             Name = null; //string.Empty;
-            RoomType = null;//string.Empty;
+            RoomType = null; //string.Empty;
             Availability = null; //string.Empty;
-            SelectedTreatmentRoom = null;
-            _isClearing = false;
+                                 // Nie resetuj SelectedTreatmentRoom, jeśli chcesz, by był widoczny po dodaniu sali.
+         
             ClearListBoxSelection?.Invoke();
             System.Diagnostics.Debug.WriteLine($"Form cleared: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
-
-
         }
+
 
 
 
