@@ -9,6 +9,7 @@ using SalonKosmetycznyApp.Model;
 using System.Windows.Input;
 using SalonKosmetycznyApp.Commands;
 using System.Windows;
+using MySql.Data.MySqlClient;
 
 namespace SalonKosmetycznyApp.ViewModel
 {
@@ -87,6 +88,8 @@ namespace SalonKosmetycznyApp.ViewModel
             }
         }
 
+        public ObservableCollection<Schedule> WorkSchedule { get; set; } = new ObservableCollection<Schedule>();
+
 
 
         private DateTime? _selectedDate;
@@ -100,10 +103,15 @@ namespace SalonKosmetycznyApp.ViewModel
             }
         }
 
+        private readonly TreatmentService _treatmentService;
+        private readonly ProductService _productService;
+
+
         // Komenda do dodania rezerwacji
         public ICommand AddReservationCommand { get; set; }
         public ICommand DeleteReservationCommand { get; }
         public ICommand UpdateReservationCommand { get; }
+
 
 
 
@@ -119,6 +127,9 @@ namespace SalonKosmetycznyApp.ViewModel
             Reservations = new ObservableCollection<Reservation>(_service.GetAllAppointments());
             DeleteReservationCommand = new RelayCommand(DeleteReservation, CanDeleteReservation);
             UpdateReservationCommand = new RelayCommand(UpdateReservation, CanUpdateReservation);
+            _treatmentService = new TreatmentService();
+            _productService = new ProductService();
+
 
 
 
@@ -166,47 +177,12 @@ namespace SalonKosmetycznyApp.ViewModel
             }
         }
 
-        //private void AddReservation(object parameter)
-        //{
-        //    var newReservation = new Reservation
-        //    {
-        //        Client = SelectedClient,
-        //        Treatment = SelectedTreatment,
-        //        AppointmentDate = SelectedDate.Value,
-        //        TreatmentRoom = SelectedTreatmentRoom,
-        //        Employee = SelectedEmployee
-        //    };
-
-        //    // Dodaj rezerwację do kolekcji
-        //    Reservation.Add(newReservation);
-
-        //    // Możesz także dodać logikę zapisywania do bazy danych
-        //    _service.AddAppointment(newReservation);
-        //}
-
-        //private void AddReservation(object parameter)
-        //{
-        //    // Tworzenie nowej rezerwacji
-        //    var newReservation = new Reservation
-        //    {
-        //        Client = SelectedClient,
-        //        Treatment = SelectedTreatment,
-        //        AppointmentDate = SelectedDate.Value, // Zakłada, że SelectedDate jest nullable i nie jest null
-        //        TreatmentRoom = SelectedTreatmentRoom,
-        //        Employee = SelectedEmployee
-        //    };
-
-        //    // Dodaj rezerwację do kolekcji
-        //    Reservations.Add(newReservation);
-
-        //    // Zapisz rezerwację w bazie danych
-        //    _service.AddAppointment(newReservation);
-        //}
+  
         private void AddReservation(object parameter)
         {
             if (SelectedTreatmentRoom == null)
             {
-                MessageBox.Show("Proszę wybrać pokój zabiegowy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Proszę wybrać sale zabiegowa.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -222,12 +198,18 @@ namespace SalonKosmetycznyApp.ViewModel
                 return;
             }
 
+
             // Połączenie daty i godziny w jeden string
             string combined = SelectedDate.Value.ToString("yyyy-MM-dd") + " " + SelectedHour;
 
             if (!DateTime.TryParse(combined, out DateTime appointmentDateTime))
             {
                 MessageBox.Show("Nieprawidłowy format daty lub godziny.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (!IsEmployeeAvailable(SelectedEmployee, appointmentDateTime))
+            {
+                MessageBox.Show("Pracownik jest niedostępny w wybranym czasie.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -242,6 +224,15 @@ namespace SalonKosmetycznyApp.ViewModel
 
             Reservations.Add(newReservation);
             _service.AddAppointment(newReservation);
+
+            WorkSchedule.Add(new Schedule(
+       $"{SelectedEmployee.FirstName} {SelectedEmployee.LastName}", // EmployeeName
+       appointmentDateTime.Date,                                   // StartDate
+       appointmentDateTime.TimeOfDay,                              // StartTime
+       appointmentDateTime.TimeOfDay + TimeSpan.FromHours(1)       // EndTime
+   ));
+
+
             MessageBox.Show("Rezerwacja została dodana.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
 
             // Czyszczenie formularza:
@@ -255,6 +246,8 @@ namespace SalonKosmetycznyApp.ViewModel
 
 
 
+
+
         private bool CanAddReservation(object parameter)
         {
             // Sprawdzenie, czy wszystkie wymagane dane są dostępne:
@@ -263,6 +256,17 @@ namespace SalonKosmetycznyApp.ViewModel
             bool isDateSelected = SelectedDate.HasValue;  // Sprawdzenie, czy data jest wybrana
             bool isRoomSelected = SelectedTreatmentRoom != null && SelectedTreatmentRoom.Availability == "Tak";  // Sprawdzenie, czy pokój jest dostępny
             bool isEmployeeSelected = SelectedEmployee != null && SelectedEmployee.Status == "Aktywny";  // Sprawdzenie, czy pracownik jest aktywny
+
+
+            if (SelectedEmployee != null && SelectedDate.HasValue && DateTime.TryParse($"{SelectedDate:yyyy-MM-dd} {SelectedHour}", out DateTime appointmentDateTime))
+            {
+                bool isEmployeeAvailable = IsEmployeeAvailable(SelectedEmployee, appointmentDateTime);
+                if (!isEmployeeAvailable)
+                {
+                    MessageBox.Show("Pracownik jest niedostępny w wybranym czasie.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+            }
 
             // Zwróć true, jeśli wszystkie warunki są spełnione, w przeciwnym razie false
             //return true;
@@ -279,6 +283,43 @@ namespace SalonKosmetycznyApp.ViewModel
                 OnPropertyChanged(nameof(SelectedHour));
             }
         }
+
+
+
+
+
+
+
+
+
+
+
+        private bool IsEmployeeAvailable(Employee employee, DateTime appointmentDateTime)
+        {
+            // Pobierz grafik pracownika na dany dzień
+            var scheduleForEmployee = WorkSchedule.Where(s =>
+                s.EmployeeName == $"{employee.FirstName} {employee.LastName}" &&
+                s.StartDate.Date == appointmentDateTime.Date);
+
+            // Sprawdź, czy w tym czasie pracownik jest dostępny
+            bool isScheduled = scheduleForEmployee.Any(s =>
+                appointmentDateTime.TimeOfDay >= s.StartTime &&
+                appointmentDateTime.TimeOfDay < s.EndTime);
+
+            // Sprawdź, czy w tym czasie pracownik ma już rezerwację
+            bool hasReservation = Reservations.Any(r =>
+                r.Employee.Id == employee.Id &&
+                r.AppointmentDate.Date == appointmentDateTime.Date &&
+                r.AppointmentDate.TimeOfDay == appointmentDateTime.TimeOfDay);
+
+            return isScheduled && !hasReservation;
+        }
+
+
+
+
+
+
 
         private bool CanDeleteReservation(object parameter)
         {
@@ -370,6 +411,38 @@ namespace SalonKosmetycznyApp.ViewModel
                 MessageBox.Show($"Błąd podczas aktualizacji rezerwacji: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        //public List<Product> GetProductsForTreatment(int treatmentId)
+        //{
+        //    var products = new List<Product>();
+
+        //    using var conn = new MySqlConnection(_connectionString);
+        //    conn.Open();
+
+        //    var cmd = new MySqlCommand(@"
+        //SELECT p.id, p.name, p.description, p.price, p.productStock 
+        //FROM products p
+        //JOIN treatment_products tp ON p.id = tp.product_id
+        //WHERE tp.treatment_id = @treatmentId", conn);
+
+        //    cmd.Parameters.AddWithValue("@treatmentId", treatmentId);
+
+        //    using var reader = cmd.ExecuteReader();
+        //    while (reader.Read())
+        //    {
+        //        products.Add(new Product(
+        //            reader.GetString("name"),
+        //            reader.GetString("description"),
+        //            reader.GetDecimal("price"),
+        //            reader.GetInt32("productStock"))
+        //        {
+        //            Id = reader.GetInt32("id")
+        //        });
+        //    }
+
+        //    return products;
+        //}
+
 
 
 
