@@ -57,7 +57,8 @@ namespace SalonKosmetycznyApp.ViewModel
         }
         public void ClearForm()
         {
-            ClientName = ClientSurname = ClientNumber = ClientEmail = ClientNote = string.Empty;
+            ClientName = ClientSurname = ClientEmail = ClientNote = string.Empty;
+            ClientNumber = null;
             ClientGender = null;
             SelectedClient = null;
         }
@@ -77,8 +78,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 var term = SearchTerm.ToLower();
                 return client.ClientName.ToLower().Contains(term)
                     || client.ClientSurname.ToLower().Contains(term)
-                    || (client.ClientEmail?.ToLower().Contains(term) ?? false)
-                    || client.ClientNumber.ToLower().Contains(term);
+                    || (client.ClientEmail?.ToLower().Contains(term) ?? false);
             }
             return false;
         }
@@ -111,8 +111,8 @@ namespace SalonKosmetycznyApp.ViewModel
 
             }
         }
-        private string _clientNumber;
-        public string ClientNumber
+        private int? _clientNumber;
+        public int? ClientNumber
         {
             get => _clientNumber;
             set
@@ -191,7 +191,7 @@ namespace SalonKosmetycznyApp.ViewModel
             },
             o => !string.IsNullOrWhiteSpace(ClientName) &&
                  !string.IsNullOrWhiteSpace(ClientSurname) &&
-                 !string.IsNullOrWhiteSpace(ClientNumber)
+                 ClientNumber > 0
         );
 
         private ICommand _updateClientCommand;
@@ -202,7 +202,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 {
                     _selectedClient.ClientName = ClientName;
                     _selectedClient.ClientSurname = ClientSurname;
-                    _selectedClient.ClientNumber = ClientNumber;
+                    _selectedClient.ClientNumber = (int)ClientNumber;
                     _selectedClient.ClientGender = ClientGender;
                     _selectedClient.ClientEmail = ClientEmail;
                     _selectedClient.ClientNote = ClientNote;
@@ -215,7 +215,7 @@ namespace SalonKosmetycznyApp.ViewModel
             o => _selectedClient != null &&
                  !string.IsNullOrWhiteSpace(ClientName) &&
                  !string.IsNullOrWhiteSpace(ClientSurname) &&
-                 !string.IsNullOrWhiteSpace(ClientNumber)
+                 ClientNumber > 0
         );
 
         private ICommand _deleteClientCommand;
