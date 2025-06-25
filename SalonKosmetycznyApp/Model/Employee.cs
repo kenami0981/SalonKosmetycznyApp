@@ -11,7 +11,7 @@ namespace SalonKosmetycznyApp.Model
         public int Id { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
-        public string Phone { get; set; }
+        public int Phone { get; set; }
         public string Email { get; set; }
         public DateTime? HireDate { get; set; }
         public string Position { get; set; }
@@ -19,11 +19,11 @@ namespace SalonKosmetycznyApp.Model
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
-        public Employee(string login, string password, string phone, string email, DateTime? hireDate, string position, string status, string firstName, string lastName)
+        public Employee(string login, string password, int? phone, string email, DateTime? hireDate, string position, string status, string firstName, string lastName)
         {
             Login = login;
             Password = password;
-            Phone = phone;
+            Phone = (int)phone;
             Email = email;
             HireDate = hireDate;
             Position = position;

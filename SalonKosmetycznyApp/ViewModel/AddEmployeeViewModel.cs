@@ -73,7 +73,6 @@ namespace SalonKosmetycznyApp.ViewModel
                 return employee.FirstName.ToLower().Contains(term)
                     || employee.LastName.ToLower().Contains(term)
                     || (employee.Status?.ToLower().Contains(term) ?? false)
-                    || employee.Phone.ToLower().Contains(term)
                     || employee.Position.ToLower().Contains(term)
                     || employee.Email.ToLower().Contains(term);
             }
@@ -91,8 +90,8 @@ namespace SalonKosmetycznyApp.ViewModel
         public void ClearForm()
         {
             Login = string.Empty;
-            Password = string.Empty; 
-            Phone = string.Empty;
+            Password = string.Empty;
+            Phone = null;
             Email = string.Empty;
             HireDate = null;
             Position = string.Empty;
@@ -139,8 +138,8 @@ namespace SalonKosmetycznyApp.ViewModel
             }
         }
 
-        private string _phone;
-        public string Phone
+        private int? _phone;
+        public int? Phone
         {
             get => _phone;
             set
@@ -300,7 +299,7 @@ namespace SalonKosmetycznyApp.ViewModel
             },
             o => !string.IsNullOrWhiteSpace(Login) &&
                  !string.IsNullOrWhiteSpace(Password) &&
-                 !string.IsNullOrWhiteSpace(Phone) &&
+                 Phone>0 &&
                  !string.IsNullOrWhiteSpace(Email) &&
                  !string.IsNullOrWhiteSpace(Position) &&
                  !string.IsNullOrWhiteSpace(FirstName) &&
@@ -315,7 +314,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 {
                     SelectedEmployee.Login = Login;
                     SelectedEmployee.Password = Password; 
-                    SelectedEmployee.Phone = Phone;
+                    SelectedEmployee.Phone = (int)Phone;
                     SelectedEmployee.Email = Email;
                     SelectedEmployee.HireDate = HireDate;
                     SelectedEmployee.Position = Position;
@@ -331,7 +330,7 @@ namespace SalonKosmetycznyApp.ViewModel
             o => SelectedEmployee != null &&
                  !string.IsNullOrWhiteSpace(Login) &&
                  !string.IsNullOrWhiteSpace(Password) &&
-                 !string.IsNullOrWhiteSpace(Phone) &&
+                 Phone > 0 &&
                  !string.IsNullOrWhiteSpace(Email) &&
                  !string.IsNullOrWhiteSpace(Position) &&
                  !string.IsNullOrWhiteSpace(FirstName) &&

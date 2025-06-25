@@ -32,7 +32,7 @@ namespace SalonKosmetycznyApp.Services
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(100) NOT NULL,         
             surname VARCHAR(100) NOT NULL,
-            phone VARCHAR(20) NOT NULL,
+            phone INT NOT NULL,
             gender VARCHAR(15),
             email VARCHAR(100),
             note TEXT
@@ -62,7 +62,7 @@ namespace SalonKosmetycznyApp.Services
                 var client = new Client(
                     reader.GetString(reader.GetOrdinal("name")),
                     reader.GetString(reader.GetOrdinal("surname")),
-                    reader.GetString(reader.GetOrdinal("phone")),
+                    reader.GetInt32(reader.GetOrdinal("phone")),
                     gender,
                     email,
                     note

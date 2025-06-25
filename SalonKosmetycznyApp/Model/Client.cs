@@ -13,16 +13,16 @@ namespace SalonKosmetycznyApp.Model
         public string ClientName { get; set; }
         public string ClientSurname { get; set; }
         public string ClientGender { get; set; }
-        public string ClientNumber { get; set; }
+        public int ClientNumber { get; set; }
         public string ClientEmail { get; set; }
         public string ClientNote { get; set; }
 
 
-        public Client(string _clientName, string _clientSurname, string _clientNumber,string? _clientGender, string? _clientEmail = null, string? clientNote = null)
+        public Client(string _clientName, string _clientSurname, int? _clientNumber,string? _clientGender, string? _clientEmail = null, string? clientNote = null)
         {
             ClientName = _clientName;
             ClientSurname = _clientSurname;
-            ClientNumber = _clientNumber;
+            ClientNumber = (int)_clientNumber;
             ClientGender = _clientGender;
             ClientEmail = _clientEmail;
             ClientNote = clientNote;

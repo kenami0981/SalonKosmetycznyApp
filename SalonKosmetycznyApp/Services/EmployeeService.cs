@@ -26,7 +26,7 @@ namespace SalonKosmetycznyApp.Services
                     Id INT AUTO_INCREMENT PRIMARY KEY,
                     Login VARCHAR(50) NOT NULL,
                     Password VARCHAR(50) NOT NULL,
-                    Phone VARCHAR(15),
+                    Phone INT,
                     Email VARCHAR(100),
                     HireDate DATE,
                     Position VARCHAR(50),
@@ -53,7 +53,7 @@ namespace SalonKosmetycznyApp.Services
             {
                 var login = reader.IsDBNull(reader.GetOrdinal("Login")) ? string.Empty : reader.GetString("Login");
                 var password = reader.IsDBNull(reader.GetOrdinal("Password")) ? string.Empty : reader.GetString("Password");
-                var phone = reader.IsDBNull(reader.GetOrdinal("Phone")) ? null : reader.GetString("Phone");
+                var phone = reader.IsDBNull(reader.GetOrdinal("Phone")) ? 0 : reader.GetInt32(reader.GetOrdinal("Phone"));
                 var email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email");
                 var hireDate = reader.IsDBNull(reader.GetOrdinal("HireDate")) ? (DateTime?)null : reader.GetDateTime("HireDate");
                 var position = reader.IsDBNull(reader.GetOrdinal("Position")) ? string.Empty : reader.GetString("Position");
