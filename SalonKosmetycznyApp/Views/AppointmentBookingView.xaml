@@ -4,11 +4,115 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SalonKosmetycznyApp.Views"
+             xmlns:conv="clr-namespace:SalonKosmetycznyApp.Converters"
+             xmlns:vm="clr-namespace:SalonKosmetycznyApp.ViewModel"
+
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Background="White" >
-        <Grid Margin="0 30 0 0">
-            <Label Content="apońtment bukin"/>
-        </Grid>
+            d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <conv:ClientFullNameConverter x:Key="ClientFullNameConverter" />
+        <conv:EmployeeFullNameConverter x:Key="EmployeeFullNameConverter" />
+    </UserControl.Resources>
+
+    <Grid Background="#FFFFF0" Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+<Label Content="Rezerwacja wizyty" FontSize="45" FontWeight="Bold" HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,20,0,30"/>
+
+        <StackPanel Grid.Column="0" Margin="20,90,20,0">
+            <!-- Klientka -->
+            <TextBlock Text="Zabieg:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White" Width="250" Margin="0,0,0,10">
+                <ComboBox ItemsSource="{Binding Clients}" 
+              SelectedItem="{Binding SelectedClient, Mode=TwoWay}" 
+              Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource ClientFullNameConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Border>
+
+            <!-- Zabieg -->
+            <TextBlock Text="Zabieg:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White" Width="250" Margin="0,0,0,10">
+                <ComboBox ItemsSource="{Binding Treatments}" 
+                          SelectedItem="{Binding SelectedTreatment, Mode=TwoWay}" 
+                          DisplayMemberPath="Name"
+                          Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <!-- Termin -->
+            <TextBlock Text="Termin:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White" Width="250" Margin="0,0,0,10">
+                <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <!--<Border BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White" Width="250" Margin="0,0,0,10">
+                <ComboBox ItemsSource="{Binding AvailableTimeSlots}" 
+                          SelectedItem="{Binding SelectedTimeSlot, Mode=TwoWay}" 
+                          Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>-->
+
+            <!-- Sala -->
+            <TextBlock Text="Sala:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White" Width="250" Margin="0,0,0,10">
+                <ComboBox ItemsSource="{Binding TreatmentRooms}" 
+                          SelectedItem="{Binding SelectedRoom, Mode=TwoWay}" 
+                          DisplayMemberPath="Name"
+                          Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Pracownica:" FontSize="13" Margin="0,10,0,5"/>
+            <Border BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White" Width="250" Margin="0,0,0,10">
+                <ComboBox ItemsSource="{Binding Employees}" 
+          SelectedItem="{Binding SelectedEmployee, Mode=TwoWay}" 
+          Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource EmployeeFullNameConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Border>
+
+            <!-- Przyciski -->
+            <StackPanel Orientation="Horizontal" Margin="0,20,0,0" HorizontalAlignment="Left" >
+                <Border Width="120" Background="White" BorderBrush="#483C32" BorderThickness="1" CornerRadius="8">
+                    <Button Command="{Binding AddReservationCommand}" Content="Dodaj rezerwację"
+                            Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+                </Border>
+                <Border Width="120" Background="White" BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" Margin="10,0,0,0">
+                    <Button Command="{Binding UpdateReservationCommand}" Content="Zapisz zmiany"
+                            Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+                </Border>
+                <Border Width="120" Background="White" BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" Margin="10,0,0,0">
+                    <Button Command="{Binding DeleteReservationCommand}" Content="Usuń rezerwację"
+                            Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+                </Border>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Lista istniejących rezerwacji -->
+        <StackPanel Grid.Column="1" Margin="20,90,20,0">
+            <TextBlock Text="Wyszukaj rezerwację:" FontSize="13" Margin="0,0,0,5"/>
+            <Border BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White" Margin="0,0,0,10">
+                <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" 
+                         Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
+            </Border>
+
+            <ListBox ItemsSource="{Binding Reservations}" 
+                     SelectedItem="{Binding SelectedReservation, Mode=TwoWay}" 
+                     DisplayMemberPath="DisplayInfo"
+                     Margin="0,15,0,0"
+                     Background="#FFFFF0" BorderBrush="Transparent"
+                     Height="400"/>
+        </StackPanel>
     </Grid>
+
 </UserControl>

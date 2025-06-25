@@ -53,7 +53,7 @@
             </Border>
         </StackPanel>
 
-        <ListBox Margin="424,160,15,0" 
+        <ListBox x:Name="TreatmentRoomListBox" Margin="424,160,15,0" 
                  ItemsSource="{Binding TreatmentRooms}" 
                  SelectedItem="{Binding SelectedTreatmentRoom, Mode=TwoWay}" 
                  BorderBrush="Transparent" Background="#FFFFF0" Grid.ColumnSpan="2" Grid.RowSpan="2"/>

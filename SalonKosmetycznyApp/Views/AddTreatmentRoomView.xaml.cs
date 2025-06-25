@@ -24,7 +24,15 @@ namespace SalonKosmetycznyApp.Views
         public AddTreatmentRoomView()
         {
             InitializeComponent();
-            this.DataContext = new TreatmentRoomViewModel();
+            var vm = new TreatmentRoomViewModel();
+            vm.ClearListBoxSelection += ClearSelection;
+            this.DataContext = vm;
         }
+
+        public void ClearSelection()
+        {
+            TreatmentRoomListBox.SelectedItem = null;
+        }
+
     }
 }

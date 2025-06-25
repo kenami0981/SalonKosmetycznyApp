@@ -16,6 +16,8 @@ namespace SalonKosmetycznyApp.ViewModel
     internal class TreatmentRoomViewModel : BaseViewModel
     {
         private readonly TreatmentRoomService _treatmentRoomService;
+        public event Action ClearListBoxSelection;
+
 
         public TreatmentRoomViewModel()
         {
@@ -25,6 +27,7 @@ namespace SalonKosmetycznyApp.ViewModel
             AvailabilityList = new ObservableCollection<string> { "Tak", "Nie" };
             RoomTypeList = new ObservableCollection<string>
         {
+                
             "Masażowa",
             "Kosmetyczna",
             "Manicure/Pedicure",
@@ -45,23 +48,49 @@ namespace SalonKosmetycznyApp.ViewModel
         public string Name
         {
             get => _name;
-            set { _name = value; OnPropertyChanged(); }
+            set
+            {
+                _name = value;
+                OnPropertyChanged(nameof(Name));
+            }
         }
-
         private string _roomType;
-
         public string RoomType
         {
             get => _roomType;
-            set { _roomType = value; OnPropertyChanged(); }
+            set
+            {
+                _roomType = value;
+                OnPropertyChanged(nameof(RoomType));
+            }
         }
-
 
         private string _availability;
         public string Availability
         {
             get => _availability;
-            set { _availability = value; OnPropertyChanged(); }
+            set
+            {
+                _availability = value;
+                OnPropertyChanged(nameof(Availability));
+            }
+        }
+        private TreatmentRoom _selectedTreatmentRoom;
+        public TreatmentRoom? SelectedTreatmentRoom
+        {
+            get => _selectedTreatmentRoom;
+            set
+            {
+                _selectedTreatmentRoom = value;
+                if (_selectedTreatmentRoom != null)
+                {
+                    Name = _selectedTreatmentRoom.Name;
+                    RoomType = _selectedTreatmentRoom.RoomType;
+                    Availability = _selectedTreatmentRoom.Availability;
+
+                    OnPropertyChanged(nameof(SelectedTreatmentRoom));
+                }
+            }
         }
 
         public ObservableCollection<string> AvailabilityList { get; }
@@ -73,23 +102,23 @@ namespace SalonKosmetycznyApp.ViewModel
         public ObservableCollection<TreatmentRoom> TreatmentRooms { get; }
 
         private bool _isClearing = false;
-        private TreatmentRoom _selectedTreatmentRoom;
-        public TreatmentRoom SelectedTreatmentRoom
-        {
-            get => _selectedTreatmentRoom;
-            set
-            {
-                _selectedTreatmentRoom = value;
-                OnPropertyChanged();
+        //private TreatmentRoom _selectedTreatmentRoom;
+        //public TreatmentRoom SelectedTreatmentRoom
+        //{
+        //    get => _selectedTreatmentRoom;
+        //    set
+        //    {
+        //        _selectedTreatmentRoom = value;
+        //        OnPropertyChanged(nameof(SelectedTreatmentRoom));
 
-                if (!_isClearing && value != null)
-                {
-                    Name = value.Name;
-                    RoomType = value.RoomType;
-                    Availability = value.Availability;
-                }
-            }
-        }
+        //        if (!_isClearing && value != null)
+        //        {
+        //            Name = value.Name;
+        //            RoomType = value.RoomType;
+        //            Availability = value.Availability;
+        //        }
+        //    }
+        //}
 
         // Komendy
         public ICommand AddTreatmentRoomCommand { get; }
@@ -99,10 +128,12 @@ namespace SalonKosmetycznyApp.ViewModel
         private void AddTreatmentRoom()
         {
             if (string.IsNullOrWhiteSpace(Name) ||
+                string.IsNullOrWhiteSpace(RoomType) ||
                 string.IsNullOrWhiteSpace(Availability) ||
                 (Availability != "Tak" && Availability != "Nie"))
-            {
-                System.Windows.MessageBox.Show(
+
+                {
+                    System.Windows.MessageBox.Show(
                     "Uzupełnij wszystkie wymagane pola.",
                     "Błąd walidacji",
                     System.Windows.MessageBoxButton.OK,
@@ -122,6 +153,8 @@ namespace SalonKosmetycznyApp.ViewModel
                 _treatmentRoomService.AddTreatmentRoom(newRoom);
                 LoadData();
                 ClearForm();
+                System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
+
             }
             catch (Exception ex)
             {
@@ -131,9 +164,13 @@ namespace SalonKosmetycznyApp.ViewModel
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
             }
+
+            ClearForm();
+            System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
+
         }
 
-        
+
 
         private void UpdateTreatmentRoom()
         {
@@ -166,14 +203,20 @@ namespace SalonKosmetycznyApp.ViewModel
             }
         }
 
-        private void ClearForm()
+        public void ClearForm()
         {
-            Name = string.Empty;
-            RoomType = string.Empty;
-            Availability = null;
+            _isClearing = true;
+            Name = null; //string.Empty;
+            RoomType = null;//string.Empty;
+            Availability = null; //string.Empty;
             SelectedTreatmentRoom = null;
             _isClearing = false;
+            ClearListBoxSelection?.Invoke();
+            System.Diagnostics.Debug.WriteLine($"Form cleared: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
+
+
         }
+
 
 
         public event PropertyChangedEventHandler PropertyChanged;
