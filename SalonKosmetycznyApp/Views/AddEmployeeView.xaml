@@ -73,21 +73,36 @@
                 </ComboBox>
             </Border>
 
-            <Border Width="200" HorizontalAlignment="Left" Background="White"
-                    BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,15,0,0">
-                <Button Command="{Binding AddEmployeeCommand}" Content="Dodaj" Background="#adada3" 
-                        BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
-            </Border>
-            <Border Width="200" HorizontalAlignment="Left" Background="White"
-                    BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,15,0,0">
-                <Button Command="{Binding UpdateEmployeeCommand}" Content="Zapisz zmiany" Background="#adada3" 
-                        BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
-            </Border>
-            <Border Width="200" HorizontalAlignment="Left" Background="White"
-                    BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,15,0,0">
-                <Button Command="{Binding DeleteEmployeeCommand}" Content="Usuń" Background="#adada3" 
-                        BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
-            </Border>
+            <!-- Sekcja z przyciskami w poziomie -->
+            <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+                <!-- Lewa strona: Dodaj i Zaloguj -->
+                <StackPanel>
+                    <Border Width="200" HorizontalAlignment="Left" Background="White"
+                            BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,0,10,0">
+                        <Button Command="{Binding LoginCommand}" Content="Zaloguj" Background="#adada3" 
+                                BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand" IsEnabled="{Binding HasEmployees}"/>
+                    </Border>
+                    <Border Width="200" HorizontalAlignment="Left" Background="White"
+                            BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,10,10,0">
+                        <Button Command="{Binding AddEmployeeCommand}" Content="Dodaj" Background="#adada3" 
+                                BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand" IsEnabled="{Binding IsLoggedIn}"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Prawa strona: Zapisz zmiany i Usuń -->
+                <StackPanel>
+                    <Border Width="200" HorizontalAlignment="Left" Background="White"
+                            BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,0,0,0">
+                        <Button Command="{Binding UpdateEmployeeCommand}" Content="Zapisz zmiany" Background="#adada3" 
+                                BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand" IsEnabled="{Binding IsLoggedIn}"/>
+                    </Border>
+                    <Border Width="200" HorizontalAlignment="Left" Background="White"
+                            BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" SnapsToDevicePixels="True" Margin="0,10,0,0">
+                        <Button Command="{Binding DeleteEmployeeCommand}" Content="Usuń" Background="#adada3" 
+                                BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand" IsEnabled="{Binding IsLoggedIn}"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
         </StackPanel>
         <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0 115 15 0" Panel.ZIndex="5" Background="White"
 BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
