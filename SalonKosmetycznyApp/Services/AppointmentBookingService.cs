@@ -75,18 +75,34 @@ namespace SalonKosmetycznyApp.Services
 
             while (reader.Read())
             {
+                // Pobieranie i parsowanie numeru telefonu
+                string phoneString = reader.IsDBNull(reader.GetOrdinal("phone")) ? null : reader.GetString("phone");
+                int? clientNumber = null;
+
+                if (!string.IsNullOrEmpty(phoneString))
+                {
+                    if (int.TryParse(phoneString, out int parsedNumber))
+                    {
+                        clientNumber = parsedNumber;
+                    }
+                    else
+                    {
+                        // Możesz dodać tutaj logowanie błędu, jeśli numer nie jest poprawny
+                        clientNumber = null;
+                    }
+                }
+
                 var client = new Client(
-                    reader.GetString("name"),                       // _clientName
-                    reader.GetString("surname"),                    // _clientSurname
-                   reader.IsDBNull(reader.GetOrdinal("gender")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("gender")),
-                     // _clientNumber
-                    reader.IsDBNull(reader.GetOrdinal("gender"))    // _clientGender
+                    reader.GetString("name"),                      // _clientName
+                    reader.GetString("surname"),                   // _clientSurname
+                    clientNumber,                                  // _clientNumber
+                    reader.IsDBNull(reader.GetOrdinal("gender"))   // _clientGender
                         ? null
                         : reader.GetString("gender"),
-                    reader.IsDBNull(reader.GetOrdinal("email"))     // _clientEmail
+                    reader.IsDBNull(reader.GetOrdinal("email"))    // _clientEmail
                         ? null
                         : reader.GetString("email"),
-                    reader.IsDBNull(reader.GetOrdinal("note"))      // clientNote
+                    reader.IsDBNull(reader.GetOrdinal("note"))     // clientNote
                         ? null
                         : reader.GetString("note")
                 )
@@ -99,6 +115,7 @@ namespace SalonKosmetycznyApp.Services
 
             return clients;
         }
+
 
         public List<Treatment> GetAllTreatments()
         {
