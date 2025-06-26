@@ -12,17 +12,27 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SalonKosmetycznyApp.ViewModel;
 
 namespace SalonKosmetycznyApp.Views
 {
     /// <summary>
-    /// Logika interakcji dla klasy AddRoomView.xaml
+    /// Interaction logic for AddTreatmentRoomView.xaml
     /// </summary>
-    public partial class AddRoomView : UserControl
+    public partial class AddTreatmentRoomView : UserControl
     {
-        public AddRoomView()
+        public AddTreatmentRoomView()
         {
             InitializeComponent();
+            var vm = new TreatmentRoomViewModel();
+            vm.ClearListBoxSelection += ClearSelection;
+            this.DataContext = vm;
         }
+
+        public void ClearSelection()
+        {
+            TreatmentRoomListBox.SelectedItem = null;
+        }
+
     }
 }

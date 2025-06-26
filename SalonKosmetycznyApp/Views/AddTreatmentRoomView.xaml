@@ -1,0 +1,61 @@
+﻿<UserControl x:Class="SalonKosmetycznyApp.Views.AddTreatmentRoomView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SalonKosmetycznyApp.Views" 
+             xmlns:vm="clr-namespace:SalonKosmetycznyApp.ViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Background="#FFFFF0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="212*"/>
+            <RowDefinition Height="15*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Label Content="Sala zabiegowa" Margin="292,36,0,-6" HorizontalAlignment="Left" FontSize="45" FontWeight="Bold" Grid.ColumnSpan="2"/>
+
+        <StackPanel Margin="15 90 0 0" Grid.Column="0" Grid.RowSpan="2">
+            <TextBlock Text="Nazwa sali:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White">
+                <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Padding="10,5" Background="Transparent" FontSize="13"/>
+            </Border>
+
+            <TextBlock Text="Typ sali:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="200" BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White">
+                <ComboBox ItemsSource="{Binding RoomTypeList}"
+          SelectedItem="{Binding RoomType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+          BorderThickness="0" Padding="10,5" Background="Transparent" FontSize="14" />
+
+            </Border>
+
+            <TextBlock Text="Dostępna:" FontSize="13" Margin="0,10,0,5"/>
+            <Border Width="115" BorderBrush="#483C32" BorderThickness="1.5" CornerRadius="8" Background="White">
+                <ComboBox ItemsSource="{Binding AvailabilityList}"
+                          SelectedItem="{Binding Availability, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          BorderThickness="0" Padding="10,5" Background="Transparent" FontSize="14"/>
+            </Border>
+
+            <Border Width="200" Margin="0,15,0,0" BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" Background="White">
+                <Button Command="{Binding AddTreatmentRoomCommand}" Content="Dodaj" Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+
+            <Border Width="200" Margin="0,15,0,0" BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" Background="White">
+                <Button Command="{Binding UpdateTreatmentRoomCommand}" Content="Zapisz zmiany" Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+
+            <Border Width="200" Margin="0,15,0,0" BorderBrush="#483C32" BorderThickness="1" CornerRadius="8" Background="White">
+                <Button Command="{Binding DeleteTreatmentRoomCommand}" Content="Usuń" Background="#adada3" BorderThickness="0" Padding="10,5" FontSize="13" Cursor="Hand"/>
+            </Border>
+        </StackPanel>
+
+        <ListBox x:Name="TreatmentRoomListBox" Margin="424,160,15,0" 
+                 ItemsSource="{Binding TreatmentRooms}" 
+                 SelectedItem="{Binding SelectedTreatmentRoom, Mode=TwoWay}" 
+                 BorderBrush="Transparent" Background="#FFFFF0" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
+    </Grid>
+</UserControl>
