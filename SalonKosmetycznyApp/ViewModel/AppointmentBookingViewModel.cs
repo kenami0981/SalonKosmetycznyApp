@@ -178,61 +178,7 @@ namespace SalonKosmetycznyApp.ViewModel
         }
 
 
-        private void AddReservation(object parameter)
-        {
-            // Walidacja przed dodaniem rezerwacji
-            if (SelectedClient == null || SelectedTreatment == null || !SelectedDate.HasValue || SelectedTreatmentRoom == null || SelectedEmployee == null)
-            {
-                MessageBox.Show("Proszę uzupełnić wszystkie pola przed dodaniem rezerwacji.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Połączenie daty i godziny w jeden string
-            string combined = SelectedDate.Value.ToString("yyyy-MM-dd") + " " + SelectedHour;
-
-            if (!DateTime.TryParse(combined, out DateTime appointmentDateTime))
-            {
-                MessageBox.Show("Nieprawidłowy format daty lub godziny.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            // Sprawdzenie dostępności pracownika
-            if (!IsEmployeeAvailable(SelectedEmployee, appointmentDateTime))
-            {
-                MessageBox.Show("Pracownik jest niedostępny w wybranym czasie.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Tworzenie nowej rezerwacji
-            var newReservation = new Reservation
-            {
-                Client = SelectedClient,
-                Treatment = SelectedTreatment,
-                AppointmentDate = appointmentDateTime,
-                TreatmentRoom = SelectedTreatmentRoom,
-                Employee = SelectedEmployee
-            };
-
-            Reservations.Add(newReservation);
-            _service.AddAppointment(newReservation);
-
-            WorkSchedule.Add(new Schedule(
-                $"{SelectedEmployee.FirstName} {SelectedEmployee.LastName}",
-                appointmentDateTime.Date,
-                appointmentDateTime.TimeOfDay,
-                appointmentDateTime.TimeOfDay + TimeSpan.FromHours(1)
-            ));
-
-            MessageBox.Show("Rezerwacja została dodana.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            // Czyszczenie formularza:
-            SelectedClient = null;
-            SelectedTreatment = null;
-            SelectedDate = null;
-            SelectedHour = null;
-            SelectedTreatmentRoom = null;
-            SelectedEmployee = null;
-        }
+       
         private bool CanAddReservation(object parameter)
         {
             // Sprawdzenie, czy wszystkie wymagane dane są dostępne:
@@ -267,45 +213,6 @@ namespace SalonKosmetycznyApp.ViewModel
                 _selectedHour = value;
                 OnPropertyChanged(nameof(SelectedHour));
             }
-        }
-
-        private bool IsEmployeeAvailable(Employee employee, DateTime appointmentDateTime)
-        {
-            if (employee == null) return false;
-
-            // Pobierz grafik pracownika na dany dzień
-            var scheduleForEmployee = WorkSchedule.Where(s =>
-                s.EmployeeName == $"{employee.FirstName} {employee.LastName}" &&
-                s.StartDate.Date == appointmentDateTime.Date).ToList();
-
-            Console.WriteLine($"Grafik dla pracownika {employee.FirstName} {employee.LastName}:");
-            foreach (var schedule in scheduleForEmployee)
-            {
-                Console.WriteLine($" - Od {schedule.StartTime} do {schedule.EndTime}");
-            }
-
-            // Sprawdź, czy w tym czasie pracownik jest zaplanowany
-            bool isScheduled = scheduleForEmployee.Any(s =>
-                appointmentDateTime.TimeOfDay >= s.StartTime &&
-                appointmentDateTime.TimeOfDay < s.EndTime);
-
-            if (!isScheduled)
-            {
-                Console.WriteLine($"Pracownik {employee.FirstName} {employee.LastName} nie jest zaplanowany na {appointmentDateTime.TimeOfDay}");
-            }
-
-            // Sprawdź, czy w tym czasie pracownik ma już rezerwację
-            bool hasReservation = Reservations.Any(r =>
-                r.Employee.Id == employee.Id &&
-                r.AppointmentDate.Date == appointmentDateTime.Date &&
-                r.AppointmentDate.TimeOfDay == appointmentDateTime.TimeOfDay);
-
-            if (hasReservation)
-            {
-                Console.WriteLine($"Pracownik {employee.FirstName} {employee.LastName} ma już rezerwację na {appointmentDateTime.TimeOfDay}");
-            }
-
-            return isScheduled && !hasReservation;
         }
 
 
@@ -346,6 +253,128 @@ namespace SalonKosmetycznyApp.ViewModel
         {
             return SelectedReservation != null;
         }
+
+        private void AddReservation(object parameter)
+        {
+            // Walidacja przed dodaniem rezerwacji
+            if (SelectedClient == null || SelectedTreatment == null || !SelectedDate.HasValue || SelectedTreatmentRoom == null || SelectedEmployee == null)
+            {
+                MessageBox.Show("Proszę uzupełnić wszystkie pola przed dodaniem rezerwacji.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Połączenie daty i godziny w jeden string
+            string combined = SelectedDate.Value.ToString("yyyy-MM-dd") + " " + SelectedHour;
+
+            if (!DateTime.TryParse(combined, out DateTime appointmentDateTime))
+            {
+                MessageBox.Show("Nieprawidłowy format daty lub godziny.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // Sprawdzenie dostępności pracownika
+            if (!IsEmployeeAvailable(SelectedEmployee, appointmentDateTime))
+            {
+                MessageBox.Show("Pracownik jest niedostępny w wybranym czasie.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Sprawdzenie dostępności sali
+            if (!IsRoomAvailable(SelectedTreatmentRoom, appointmentDateTime))
+            {
+                MessageBox.Show($"Sala {SelectedTreatmentRoom.Name} jest już zajęta w wybranym czasie.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Tworzenie nowej rezerwacji
+            var newReservation = new Reservation
+            {
+                Client = SelectedClient,
+                Treatment = SelectedTreatment,
+                AppointmentDate = appointmentDateTime,
+                TreatmentRoom = SelectedTreatmentRoom,
+                Employee = SelectedEmployee
+            };
+
+            Reservations.Add(newReservation);
+            _service.AddAppointment(newReservation);
+
+            WorkSchedule.Add(new Schedule(
+                $"{SelectedEmployee.FirstName} {SelectedEmployee.LastName}",
+                appointmentDateTime.Date,
+                appointmentDateTime.TimeOfDay,
+                appointmentDateTime.TimeOfDay + TimeSpan.FromHours(1)
+            ));
+
+            MessageBox.Show("Rezerwacja została dodana.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // Czyszczenie formularza po dodaniu rezerwacji
+            ClearForm();
+        }
+
+
+
+
+        private bool IsRoomAvailable(TreatmentRoom treatmentRoom, DateTime appointmentDateTime)
+        {
+            if (treatmentRoom == null) return false;
+
+            // Sprawdzamy, czy w tej samej sali nie ma zaplanowanego zabiegu na dany czas
+            bool hasConflictingReservation = Reservations.Any(r =>
+                r.TreatmentRoom.Id == treatmentRoom.Id &&
+                r.AppointmentDate.Date == appointmentDateTime.Date &&
+                r.AppointmentDate.TimeOfDay == appointmentDateTime.TimeOfDay);
+
+            if (hasConflictingReservation)
+            {
+                Console.WriteLine($"Sala {treatmentRoom.Name} jest już zajęta w wybranym czasie.");
+            }
+
+            return !hasConflictingReservation;
+        }
+
+
+        private bool IsEmployeeAvailable(Employee employee, DateTime appointmentDateTime)
+        {
+            if (employee == null) return false;
+
+            // Pobierz grafik pracownika na dany dzień
+            var scheduleForEmployee = WorkSchedule.Where(s =>
+                s.EmployeeName == $"{employee.FirstName} {employee.LastName}" &&
+                s.StartDate.Date == appointmentDateTime.Date).ToList();
+
+            Console.WriteLine($"Grafik dla pracownika {employee.FirstName} {employee.LastName}:");
+            foreach (var schedule in scheduleForEmployee)
+            {
+                Console.WriteLine($" - Od {schedule.StartTime} do {schedule.EndTime}");
+            }
+
+            // Sprawdź, czy w tym czasie pracownik jest zaplanowany
+            bool isScheduled = scheduleForEmployee.Any(s =>
+                appointmentDateTime.TimeOfDay >= s.StartTime &&
+                appointmentDateTime.TimeOfDay < s.EndTime);
+
+            // Sprawdź, czy w tym czasie pracownik ma już rezerwację
+            bool hasReservation = Reservations.Any(r =>
+                r.Employee.Id == employee.Id &&
+                r.AppointmentDate.Date == appointmentDateTime.Date &&
+                r.AppointmentDate.TimeOfDay == appointmentDateTime.TimeOfDay);
+
+            if (isScheduled)
+            {
+                Console.WriteLine($"Pracownik {employee.FirstName} {employee.LastName} jest zaplanowany na {appointmentDateTime.TimeOfDay}");
+            }
+
+            if (hasReservation)
+            {
+                Console.WriteLine($"Pracownik {employee.FirstName} {employee.LastName} ma już rezerwację na {appointmentDateTime.TimeOfDay}");
+            }
+
+            // Pracownik jest dostępny, jeśli nie jest zaplanowany i nie ma już rezerwacji w tym czasie
+            return !isScheduled && !hasReservation;
+        }
+
+
         private void UpdateReservation(object parameter)
         {
             if (SelectedReservation == null)
@@ -364,6 +393,20 @@ namespace SalonKosmetycznyApp.ViewModel
             if (!DateTime.TryParse(combined, out DateTime appointmentDateTime))
             {
                 MessageBox.Show("Nieprawidłowy format daty lub godziny.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // Sprawdzenie dostępności pracownika
+            if (!IsEmployeeAvailable(SelectedEmployee, appointmentDateTime))
+            {
+                MessageBox.Show("Pracownik jest niedostępny w wybranym czasie.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Sprawdzenie dostępności sali
+            if (!IsRoomAvailable(SelectedTreatmentRoom, appointmentDateTime))
+            {
+                MessageBox.Show($"Sala {SelectedTreatmentRoom.Name} jest już zajęta w wybranym czasie.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -387,53 +430,23 @@ namespace SalonKosmetycznyApp.ViewModel
                 MessageBox.Show("Rezerwacja została zaktualizowana.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 // Opcjonalne czyszczenie formularza:
-                SelectedReservation = null;
-                SelectedClient = null;
-                SelectedTreatment = null;
-                SelectedDate = null;
-                SelectedHour = null;
-                SelectedTreatmentRoom = null;
-                SelectedEmployee = null;
+                ClearForm();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Błąd podczas aktualizacji rezerwacji: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        //public List<Product> GetProductsForTreatment(int treatmentId)
-        //{
-        //    var products = new List<Product>();
-
-        //    using var conn = new MySqlConnection(_connectionString);
-        //    conn.Open();
-
-        //    var cmd = new MySqlCommand(@"
-        //SELECT p.id, p.name, p.description, p.price, p.productStock 
-        //FROM products p
-        //JOIN treatment_products tp ON p.id = tp.product_id
-        //WHERE tp.treatment_id = @treatmentId", conn);
-
-        //    cmd.Parameters.AddWithValue("@treatmentId", treatmentId);
-
-        //    using var reader = cmd.ExecuteReader();
-        //    while (reader.Read())
-        //    {
-        //        products.Add(new Product(
-        //            reader.GetString("name"),
-        //            reader.GetString("description"),
-        //            reader.GetDecimal("price"),
-        //            reader.GetInt32("productStock"))
-        //        {
-        //            Id = reader.GetInt32("id")
-        //        });
-        //    }
-
-        //    return products;
-        //}
-
-
-
+        private void ClearForm()
+        {
+            SelectedClient = null;
+            SelectedTreatment = null;
+            SelectedDate = null;
+            SelectedHour = null;
+            SelectedTreatmentRoom = null;
+            SelectedEmployee = null;
+            SelectedReservation = null;  // Czyszczenie wybranej rezerwacji
+        }
 
 
 
