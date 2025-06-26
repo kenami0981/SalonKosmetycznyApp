@@ -16,15 +16,87 @@
 
         <!-- Menu -->
         <Grid x:Name="Menu">
-            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Orientation="Horizontal">
-                <Button Content="Klienci" Command="{Binding UpdateViewCommand}" CommandParameter="client" Margin="5"/>
-                <Button Content="Pracownicy" Command="{Binding UpdateViewCommand}" CommandParameter="employee" Margin="5"/>
-                <Button Content="Zabiegi" Command="{Binding UpdateViewCommand}" CommandParameter="treatment" Margin="5"/>
-                <Button Content="Kalendarz" Command="{Binding UpdateViewCommand}" CommandParameter="calendar" Margin="5"/>
-                <Button Content="Sale" Command="{Binding UpdateViewCommand}" CommandParameter="room" Margin="5"/>
-                <Button Content="Rezerwacja terminów" Command="{Binding UpdateViewCommand}" CommandParameter="booking" Margin="5"/>
-                <Button Content="Produkty" Command="{Binding UpdateViewCommand}" CommandParameter="products" Margin="5"/>
-                <Button Content="Grafik" Command="{Binding UpdateViewCommand}" CommandParameter="employee_schedule" Margin="5"/>
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0 5 0 0">
+                <Button Content="Klienci" Command="{Binding UpdateViewCommand}" CommandParameter="client" Background="#E8D9C5" Margin="0 0 10 0"
+        Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button Content="Pracownicy" Command="{Binding UpdateViewCommand}" CommandParameter="employee" Background="#E8D9C5"
+Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand" Margin="0 0 10 0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button  Content="Zabiegi" Command="{Binding UpdateViewCommand}" CommandParameter="treatment" Background="#E8D9C5"
+Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand" Margin="0 0 10 0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button  Content="Kalendarz" Command="{Binding UpdateViewCommand}" CommandParameter="calendar" Background="#E8D9C5"
+Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand" Margin="0 0 10 0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button  Content="Sale" Command="{Binding UpdateViewCommand}" CommandParameter="room" Background="#E8D9C5"
+Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand" Margin="0 0 10 0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button  Content="Rezerwacje" Command="{Binding UpdateViewCommand}" CommandParameter="booking" Background="#E8D9C5"
+Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand" Margin="0 0 10 0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button Content="Produkty" Command="{Binding UpdateViewCommand}" CommandParameter="products" Background="#E8D9C5"
+Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand" Margin="0 0 10 0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button Content="Grafik" Command="{Binding UpdateViewCommand}" CommandParameter="employee_schedule" Background="#E8D9C5"
+Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand" Margin="0 0 10 0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
             </StackPanel>
         </Grid>
     </Grid>
