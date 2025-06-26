@@ -78,7 +78,8 @@ namespace SalonKosmetycznyApp.Services
                 var client = new Client(
                     reader.GetString("name"),                       // _clientName
                     reader.GetString("surname"),                    // _clientSurname
-                    reader.GetString("phone"),                      // _clientNumber
+                   reader.IsDBNull(reader.GetOrdinal("gender")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("gender")),
+                     // _clientNumber
                     reader.IsDBNull(reader.GetOrdinal("gender"))    // _clientGender
                         ? null
                         : reader.GetString("gender"),
@@ -174,35 +175,50 @@ namespace SalonKosmetycznyApp.Services
             conn.Open();
 
             var cmd = new MySqlCommand(@"
-        SELECT Id, Login, Password, Phone, Email, HireDate, Position, Status, FirstName, LastName FROM Employees", conn);
+    SELECT Id, Login, Password, Phone, Email, HireDate, Position, Status, FirstName, LastName FROM Employees", conn);
             using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
                 var hireDate = reader.IsDBNull(reader.GetOrdinal("HireDate"))
                     ? (DateTime?)null
-                    : reader.GetDateTime("HireDate");
+                    : reader.GetDateTime(reader.GetOrdinal("HireDate"));
+
+                int? phoneNumber = null;
+                if (!reader.IsDBNull(reader.GetOrdinal("Phone")))
+                {
+                    var phoneStr = reader.GetString(reader.GetOrdinal("Phone"));
+                    if (int.TryParse(phoneStr, out int phoneInt))
+                    {
+                        phoneNumber = phoneInt;
+                    }
+                    else
+                    {
+                        // np. zostaw null albo obsłuż błąd
+                    }
+                }
 
                 var employee = new Employee(
-                    reader.GetString("Login"),
-                    reader.GetString("Password"),
-                    reader.GetString("Phone"),
-                    reader.GetString("Email"),
+                    reader.GetString(reader.GetOrdinal("Login")),
+                    reader.GetString(reader.GetOrdinal("Password")),
+                    phoneNumber, // tutaj używasz sparsowanego phoneNumber
+                    reader.GetString(reader.GetOrdinal("Email")),
                     hireDate,
-                    reader.GetString("Position"),
-                    reader.GetString("Status"),
-                    reader.GetString("FirstName"),
-                    reader.GetString("LastName")
+                    reader.GetString(reader.GetOrdinal("Position")),
+                    reader.GetString(reader.GetOrdinal("Status")),
+                    reader.GetString(reader.GetOrdinal("FirstName")),
+                    reader.GetString(reader.GetOrdinal("LastName"))
                 )
-                                {
-                                    Id = reader.GetInt32("Id")
-                                };
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("Id"))
+                };
 
                 employees.Add(employee);
             }
 
             return employees;
         }
+
 
 
         public void AddAppointment(int clientId, int treatmentId, int roomId, int employeeId, DateTime appointmentDate)
@@ -333,6 +349,22 @@ namespace SalonKosmetycznyApp.Services
 
             while (reader.Read())
             {
+
+                int? clientPhoneNumber = null;
+                if (!reader.IsDBNull(reader.GetOrdinal("client_number")))
+                {
+                    var phoneStr = reader.GetString(reader.GetOrdinal("client_number"));
+                    if (int.TryParse(phoneStr, out int parsedPhone))
+                    {
+                        clientPhoneNumber = parsedPhone;
+                    }
+                    else
+                    {
+                        // Możesz logować błąd parsowania lub ustawić domyślną wartość
+                        clientPhoneNumber = 0; // Domyślna wartość
+                    }
+                }
+
                 var reservation = new Reservation
                 {
                     Id = reader.GetInt32("id"),
@@ -341,7 +373,7 @@ namespace SalonKosmetycznyApp.Services
                     Client = new Client(
                         reader.GetString("client_name"),
                         reader.GetString("client_surname"),
-                        reader.GetString("client_number"),
+                        clientPhoneNumber,
                         reader.IsDBNull(reader.GetOrdinal("client_gender")) ? null : reader.GetString("client_gender"),
                         reader.IsDBNull(reader.GetOrdinal("client_email")) ? null : reader.GetString("client_email"),
                         reader.IsDBNull(reader.GetOrdinal("client_note")) ? null : reader.GetString("client_note")
@@ -369,7 +401,7 @@ namespace SalonKosmetycznyApp.Services
                     },
 
                     Employee = new Employee(
-                        login: "", password: "", phone: "", email: "",
+                        login: "", password: "", phone: 0, email: "",
                         hireDate: null, position: "", status: "",
                         firstName: reader.GetString("FirstName"),
                         lastName: reader.GetString("LastName")
