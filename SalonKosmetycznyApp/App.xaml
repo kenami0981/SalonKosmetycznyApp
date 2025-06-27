@@ -15,9 +15,6 @@
         <DataTemplate DataType="{x:Type viewmodel:AddTreatmentViewModel}">
             <views:AddTreatmentView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type viewmodel:CalendarViewModel}">
-            <views:CalendarView/>
-        </DataTemplate>
         <DataTemplate DataType="{x:Type viewmodel:TreatmentRoomViewModel}">
             <views:AddTreatmentRoomView/>
         </DataTemplate>

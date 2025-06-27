@@ -37,10 +37,6 @@ namespace SalonKosmetycznyApp.Commands
             {
                 viewModel.SelectedViewModel = new AddTreatmentViewModel();
             }
-            else if (parameter.ToString() == "calendar")
-            {
-                viewModel.SelectedViewModel = new CalendarViewModel();
-            }
             else if (parameter.ToString() == "room")
             {
                 viewModel.SelectedViewModel = new TreatmentRoomViewModel();
