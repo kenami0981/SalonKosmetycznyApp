@@ -1,51 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SalonKosmetycznyApp.Services;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using SalonKosmetycznyApp.Commands;
+﻿using SalonKosmetycznyApp.Commands;
 using SalonKosmetycznyApp.Model;
+using SalonKosmetycznyApp.Services;
+using SalonKosmetycznyApp.ViewModel;
+using System;
+using System.Collections.ObjectModel;
 using System.Windows;
-
+using System.Windows.Input;
 namespace SalonKosmetycznyApp.ViewModel
 {
     internal class TreatmentRoomViewModel : BaseViewModel
     {
-        private readonly TreatmentRoomService _treatmentRoomService;
-        public event Action ClearListBoxSelection;
-
-
-        public TreatmentRoomViewModel()
-        {
-            _treatmentRoomService = new TreatmentRoomService();
-            TreatmentRooms = new ObservableCollection<TreatmentRoom>();
-            LoadData();
-            AvailabilityList = new ObservableCollection<string> { "Tak", "Nie" };
-            RoomTypeList = new ObservableCollection<string>
-        {
-                
-            "Masażowa",
-            "Kosmetyczna",
-            "Manicure/Pedicure",
-            "Depilacja",
-            "Gabinet laserowy",
-            "Gabinet SPA",
-            "Sala do makijażu"
-        };
-
-            AddTreatmentRoomCommand = new RelayCommand(_ => AddTreatmentRoom(), _ => true);
-            UpdateTreatmentRoomCommand = new RelayCommand(_ => UpdateTreatmentRoom(), _ => SelectedTreatmentRoom != null);
-            DeleteTreatmentRoomCommand = new RelayCommand(_ => DeleteTreatmentRoom(), _ => SelectedTreatmentRoom != null);
-
-        }
-
-        // Właściwości do powiązania z formularzem
         private string _name;
+        private string _roomType;
+        private string _availability;
+        private readonly TreatmentRoomService _service;
+
         public string Name
         {
             get => _name;
@@ -55,7 +24,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 OnPropertyChanged(nameof(Name));
             }
         }
-        private string _roomType;
+
         public string RoomType
         {
             get => _roomType;
@@ -66,7 +35,6 @@ namespace SalonKosmetycznyApp.ViewModel
             }
         }
 
-        private string _availability;
         public string Availability
         {
             get => _availability;
@@ -76,209 +44,73 @@ namespace SalonKosmetycznyApp.ViewModel
                 OnPropertyChanged(nameof(Availability));
             }
         }
-        private TreatmentRoom _selectedTreatmentRoom;
-        public TreatmentRoom? SelectedTreatmentRoom
+
+        public ObservableCollection<string> RoomTypeList { get; }
+        public ObservableCollection<string> AvailabilityList { get; }
+
+        private ObservableCollection<TreatmentRoom> _treatmentRooms;
+        public ObservableCollection<TreatmentRoom> TreatmentRooms
         {
-            get => _selectedTreatmentRoom;
+            get => _treatmentRooms;
             set
             {
-                _selectedTreatmentRoom = value;
-                if (_selectedTreatmentRoom != null)
-                {
-                    Name = _selectedTreatmentRoom.Name;
-                    RoomType = _selectedTreatmentRoom.RoomType;
-                    Availability = _selectedTreatmentRoom.Availability;
+                _treatmentRooms = value;
+                OnPropertyChanged(nameof(TreatmentRooms));
+            }
+        }
 
-                    OnPropertyChanged(nameof(SelectedTreatmentRoom));
+
+        public ICommand AddTreatmentRoomCommand { get; }
+        public ICommand UpdateTreatmentRoomCommand { get; }
+
+        private TreatmentRoom _selectedRoom;
+        public TreatmentRoom SelectedRoom
+        {
+            get => _selectedRoom;
+            set
+            {
+                _selectedRoom = value;
+                OnPropertyChanged(nameof(SelectedRoom));
+
+                if (_selectedRoom != null)
+                {
+                    Name = _selectedRoom.Name;
+                    RoomType = _selectedRoom.RoomType;
+                    Availability = _selectedRoom.Availability;
                 }
             }
         }
 
-        public ObservableCollection<string> AvailabilityList { get; }
-        public ObservableCollection<string> RoomTypeList { get; }
-      
+        public TreatmentRoomViewModel()
+        {
+            _service = new TreatmentRoomService();
+            RoomTypeList = TreatmentRoomType.GetRoomTypeList();
+            AvailabilityList = TreatmentRoomType.GetAvailabilityList();
+            TreatmentRooms = new ObservableCollection<TreatmentRoom>(_service.GetAllTreatmentRooms());
+            AddTreatmentRoomCommand = new RelayCommand(param => AddTreatmentRoom(), param => true);
+            UpdateTreatmentRoomCommand = new RelayCommand(param => UpdateTreatmentRoom(), param => true);
+        }
 
-
-        // Lista i zaznaczony element
-        public ObservableCollection<TreatmentRoom> TreatmentRooms { get; }
-
-        private bool _isClearing = false;
-        //private TreatmentRoom _selectedTreatmentRoom;
-        //public TreatmentRoom SelectedTreatmentRoom
-        //{
-        //    get => _selectedTreatmentRoom;
-        //    set
-        //    {
-        //        _selectedTreatmentRoom = value;
-        //        OnPropertyChanged(nameof(SelectedTreatmentRoom));
-
-        //        if (!_isClearing && value != null)
-        //        {
-        //            Name = value.Name;
-        //            RoomType = value.RoomType;
-        //            Availability = value.Availability;
-        //        }
-        //    }
-        //}
-
-        // Komendy
-        public ICommand AddTreatmentRoomCommand { get; }
-        public ICommand UpdateTreatmentRoomCommand { get; }
-        public ICommand DeleteTreatmentRoomCommand { get; }
         private void AddTreatmentRoom()
         {
-            if (string.IsNullOrWhiteSpace(Name) ||
-                string.IsNullOrWhiteSpace(RoomType) ||
-                string.IsNullOrWhiteSpace(Availability) ||
-                (Availability != "Tak" && Availability != "Nie"))
-            {
-                MessageBox.Show(
-                    "Uzupełnij wszystkie wymagane pola.",
-                    "Błąd walidacji",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
             try
             {
-                var newRoom = new TreatmentRoom
-                {
-                    Name = this.Name,
-                    RoomType = this.RoomType,
-                    Availability = this.Availability
-                };
-
-                _treatmentRoomService.AddTreatmentRoom(newRoom);
-                LoadData();  // Załaduj dane, aby lista pokoi była zaktualizowana
+                var newRoom = new TreatmentRoom(Name, RoomType, Availability);
+                _service.AddTreatmentRoom(newRoom);
+                TreatmentRooms.Add(newRoom);
+                MessageBox.Show("Dodano salę zabiegową!");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Wystąpił błąd podczas dodawania sali:\n" + ex.Message,
-                    "Błąd",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-            finally
-            {
-                ClearForm();  // Resetuj formularz po zakończeniu operacji
-                System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
+                MessageBox.Show($"Błąd: {ex.Message}");
             }
         }
-
-
-        //private void AddTreatmentRoom()
-        //{
-        //    if (string.IsNullOrWhiteSpace(Name) ||
-        //        string.IsNullOrWhiteSpace(RoomType) ||
-        //        string.IsNullOrWhiteSpace(Availability) ||
-        //        (Availability != "Tak" && Availability != "Nie"))
-
-        //        {
-        //            System.Windows.MessageBox.Show(
-        //            "Uzupełnij wszystkie wymagane pola.",
-        //            "Błąd walidacji",
-        //            System.Windows.MessageBoxButton.OK,
-        //            System.Windows.MessageBoxImage.Warning);
-        //        return;
-        //    }
-
-        //    try
-        //    {
-        //        var newRoom = new TreatmentRoom
-        //        {
-        //            Name = this.Name,
-        //            RoomType = this.RoomType,
-        //            Availability = this.Availability
-        //        };
-
-        //        _treatmentRoomService.AddTreatmentRoom(newRoom);
-        //        LoadData();
-        //        ClearForm();
-        //        System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        System.Windows.MessageBox.Show(
-        //            "Wystąpił błąd podczas dodawania sali:\n" + ex.Message,
-        //            "Błąd",
-        //            System.Windows.MessageBoxButton.OK,
-        //            System.Windows.MessageBoxImage.Error);
-        //    }
-
-        //    ClearForm();
-        //    System.Diagnostics.Debug.WriteLine($"After ClearForm in AddTreatmentRoom: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
-
-        //}
-
 
 
         private void UpdateTreatmentRoom()
         {
-            if (SelectedTreatmentRoom == null) return;
-
-            SelectedTreatmentRoom.Name = this.Name;
-            SelectedTreatmentRoom.RoomType = this.RoomType;
-            SelectedTreatmentRoom.Availability = this.Availability;
-
-            _treatmentRoomService.UpdateTreatmentRoom(SelectedTreatmentRoom);
-            LoadData();
-            //ClearForm();
-        }
-
-        private void DeleteTreatmentRoom()
-        {
-            if (SelectedTreatmentRoom == null) return;
-
-            _treatmentRoomService.DeleteTreatmentRoom(SelectedTreatmentRoom.Id);
-            LoadData();
-            ClearForm();
-        }
-        //public void LoadData()
-        //{
-        //    TreatmentRooms.Clear();
-        //    var roomsFromDb = _treatmentRoomService.GetAllTreatmentRooms();
-        //    foreach (var room in roomsFromDb)
-        //    {
-        //        TreatmentRooms.Add(room);
-        //    }
-        //}
-        public void LoadData()
-        {
-            TreatmentRooms.Clear();
-            var roomsFromDb = _treatmentRoomService.GetAllTreatmentRooms();
-            foreach (var room in roomsFromDb)
-            {
-                TreatmentRooms.Add(room);
-            }
-            // Dodaj logowanie
-            System.Diagnostics.Debug.WriteLine($"Loaded {TreatmentRooms.Count} rooms.");
-        }
-
-
-
-        public void ClearForm()
-        {
-           
-            Name = null; //string.Empty;
-            RoomType = null; //string.Empty;
-            Availability = null; //string.Empty;
-                                 // Nie resetuj SelectedTreatmentRoom, jeśli chcesz, by był widoczny po dodaniu sali.
-         
-            ClearListBoxSelection?.Invoke();
-            System.Diagnostics.Debug.WriteLine($"Form cleared: Name='{Name}', RoomType='{RoomType}', Availability='{Availability}'");
-        }
-
-
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            var updatedRoom = new TreatmentRoom(Name, RoomType, Availability) { Id = SelectedRoom?.Id ?? 0 };
+            _service.UpdateTreatmentRoom(updatedRoom);
         }
     }
 }
-
