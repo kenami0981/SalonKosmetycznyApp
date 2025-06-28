@@ -116,6 +116,19 @@ namespace SalonKosmetycznyApp.Services
 
             cmd.ExecuteNonQuery();
         }
+
+        public bool HasAppointmentForRoom(int roomId)
+        {
+            using var conn = new MySqlConnection(_connectionString);
+            conn.Open();
+
+            var cmd = new MySqlCommand("SELECT COUNT(*) FROM appointments WHERE room_id = @roomId", conn);
+            cmd.Parameters.AddWithValue("@roomId", roomId);
+
+            int count = Convert.ToInt32(cmd.ExecuteScalar());
+            return count > 0;
+        }
+
     }
 }
 
