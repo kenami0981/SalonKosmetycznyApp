@@ -204,16 +204,9 @@ namespace SalonKosmetycznyApp.Services
                 int? phoneNumber = null;
                 if (!reader.IsDBNull(reader.GetOrdinal("Phone")))
                 {
-                    var phoneStr = reader.GetString(reader.GetOrdinal("Phone"));
-                    if (int.TryParse(phoneStr, out int phoneInt))
-                    {
-                        phoneNumber = phoneInt;
-                    }
-                    else
-                    {
-                        // np. zostaw null albo obsłuż błąd
-                    }
+                    phoneNumber = reader.GetInt32(reader.GetOrdinal("Phone"));
                 }
+
 
                 var employee = new Employee(
                     reader.GetString(reader.GetOrdinal("Login")),

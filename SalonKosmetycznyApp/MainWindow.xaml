@@ -47,16 +47,6 @@ Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100"
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
-                <Button  Content="Kalendarz" Command="{Binding UpdateViewCommand}" CommandParameter="calendar" Background="#E8D9C5"
-Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand" Margin="0 0 10 0">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
                 <Button  Content="Sale" Command="{Binding UpdateViewCommand}" CommandParameter="room" Background="#E8D9C5"
 Foreground="Black" FontSize="18" FontFamily="Georgia" Padding="10,5" Width="100" Height="35" BorderThickness="0" Cursor="Hand" Margin="0 0 10 0">
                     <Button.Template>
