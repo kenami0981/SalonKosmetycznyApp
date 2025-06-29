@@ -62,7 +62,6 @@ namespace SalonKosmetycznyApp.Services
                 cmd.ExecuteNonQuery();
             }
 
-
         public List<Client> GetAllClients()
         {
             var clients = new List<Client>();
@@ -75,22 +74,10 @@ namespace SalonKosmetycznyApp.Services
 
             while (reader.Read())
             {
-                // Pobieranie i parsowanie numeru telefonu
-                string phoneString = reader.IsDBNull(reader.GetOrdinal("phone")) ? null : reader.GetString("phone");
-                int? clientNumber = null;
-
-                if (!string.IsNullOrEmpty(phoneString))
-                {
-                    if (int.TryParse(phoneString, out int parsedNumber))
-                    {
-                        clientNumber = parsedNumber;
-                    }
-                    else
-                    {
-                        // Możesz dodać tutaj logowanie błędu, jeśli numer nie jest poprawny
-                        clientNumber = null;
-                    }
-                }
+                // Pobieranie numeru telefonu jako int, z obsługą null
+                int? clientNumber = reader.IsDBNull(reader.GetOrdinal("phone"))
+                    ? (int?)null
+                    : reader.GetInt32("phone");
 
                 var client = new Client(
                     reader.GetString("name"),                      // _clientName
@@ -115,6 +102,7 @@ namespace SalonKosmetycznyApp.Services
 
             return clients;
         }
+
 
 
         public List<Treatment> GetAllTreatments()
