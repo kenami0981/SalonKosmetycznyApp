@@ -300,11 +300,12 @@ namespace SalonKosmetycznyApp.ViewModel
             _service.AddAppointment(newReservation);
 
             WorkSchedule.Add(new Schedule(
-                $"{SelectedEmployee.FirstName} {SelectedEmployee.LastName}",
-                appointmentDateTime.Date,
-                appointmentDateTime.TimeOfDay,
-                appointmentDateTime.TimeOfDay + TimeSpan.FromHours(1)
-            ));
+    SelectedEmployee.Id,
+    $"{SelectedEmployee.FirstName} {SelectedEmployee.LastName}",
+    appointmentDateTime.Date,
+    appointmentDateTime.TimeOfDay,
+    appointmentDateTime.TimeOfDay + TimeSpan.FromHours(1)
+));
 
             MessageBox.Show("Rezerwacja została dodana.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
 

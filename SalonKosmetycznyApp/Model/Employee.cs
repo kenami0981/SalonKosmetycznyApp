@@ -18,7 +18,7 @@ namespace SalonKosmetycznyApp.Model
         public string Status { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-
+        public string FullName => $"{FirstName} {LastName}";
         public Employee(string login, string password, int? phone, string email, DateTime? hireDate, string position, string status, string firstName, string lastName)
         {
             Login = login;

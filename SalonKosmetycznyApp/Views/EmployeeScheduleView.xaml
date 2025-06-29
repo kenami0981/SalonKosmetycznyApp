@@ -19,7 +19,7 @@
             <Border BorderBrush="#483C32" Width="200" Background="White" HorizontalAlignment="Left"
         BorderThickness="1.5" CornerRadius="8" SnapsToDevicePixels="True">
                 <ComboBox ItemsSource="{Binding Employees}"
-              SelectedItem="{Binding EmployeeName, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+              SelectedItem="{Binding SelectedEmployee, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="FullName"
               Background="Transparent" BorderThickness="0" Padding="10,5" FontSize="13"/>
             </Border>
 
