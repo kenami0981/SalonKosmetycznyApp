@@ -43,6 +43,15 @@ namespace SalonKosmetycznyApp.Services
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     name VARCHAR(100) NOT NULL
                 );
+
+           CREATE TABLE IF NOT EXISTS treatments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        duration_minutes INT NOT NULL,
+        price DECIMAL(10, 2) NOT NULL,
+        type VARCHAR(50) NOT NULL
+    );
                 CREATE TABLE IF NOT EXISTS appointments (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     client_id INT NOT NULL,
@@ -348,20 +357,9 @@ namespace SalonKosmetycznyApp.Services
             while (reader.Read())
             {
 
-                int? clientPhoneNumber = null;
-                if (!reader.IsDBNull(reader.GetOrdinal("client_number")))
-                {
-                    var phoneStr = reader.GetString(reader.GetOrdinal("client_number"));
-                    if (int.TryParse(phoneStr, out int parsedPhone))
-                    {
-                        clientPhoneNumber = parsedPhone;
-                    }
-                    else
-                    {
-                        // Możesz logować błąd parsowania lub ustawić domyślną wartość
-                        clientPhoneNumber = 0; // Domyślna wartość
-                    }
-                }
+                int? clientPhoneNumber = reader.IsDBNull(reader.GetOrdinal("client_number"))
+            ? null
+            : reader.GetInt32(reader.GetOrdinal("client_number"));
 
                 var reservation = new Reservation
                 {
