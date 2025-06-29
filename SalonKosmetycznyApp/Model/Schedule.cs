@@ -9,14 +9,16 @@ namespace SalonKosmetycznyApp.Model
     class Schedule
     {
         public int Id { get; set; }
+        public int EmployeeId { get; set; }
         public string EmployeeName { get; set; }
-        public DateTime StartDate { get; set; }        // Tylko data, np. 2025-06-16
-        public TimeSpan StartTime { get; set; }        // Tylko godzina, np. 08:30
+        public DateTime StartDate { get; set; }
+        public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
 
 
-        public Schedule(string employeeName, DateTime startDate, TimeSpan startTime, TimeSpan endTime)
+        public Schedule(int employeeId, string employeeName, DateTime startDate, TimeSpan startTime, TimeSpan endTime)
         {
+            EmployeeId = employeeId;
             EmployeeName = employeeName;
             StartDate = startDate;
             StartTime = startTime;

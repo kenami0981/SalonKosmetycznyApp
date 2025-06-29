@@ -24,14 +24,17 @@ namespace SalonKosmetycznyApp.Services
             conn.Open();
 
             string createTableQuery = @"
-    CREATE TABLE IF NOT EXISTS schedules (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        employeeName VARCHAR(100) NOT NULL,
-        startDate DATE NOT NULL,
-        startTime TIME NOT NULL,
-        endTime TIME NOT NULL
-    );
-    ";
+        CREATE TABLE IF NOT EXISTS schedules (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            employeeId INT NOT NULL,
+            employeeName VARCHAR(100) NOT NULL,
+            startDate DATE NOT NULL,
+            startTime TIME NOT NULL,
+            endTime TIME NOT NULL,
+            CONSTRAINT fk_employee FOREIGN KEY (employeeId) REFERENCES employees(id)
+                ON DELETE CASCADE
+                ON UPDATE CASCADE
+        );";
 
             using var cmd = new MySqlCommand(createTableQuery, conn);
             cmd.ExecuteNonQuery();
@@ -47,13 +50,14 @@ namespace SalonKosmetycznyApp.Services
             conn.Open();
 
             var cmd = new MySqlCommand(
-                "SELECT id, employeeName, startDate, startTime, endTime FROM schedules", conn);
+                "SELECT id, employeeId, employeeName, startDate, startTime, endTime FROM schedules", conn);
 
             using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
                 var schedule = new Schedule(
+                    reader.GetInt32("employeeId"),
                     reader.GetString("employeeName"),
                     reader.GetDateTime("startDate"),
                     reader.GetTimeSpan("startTime"),
@@ -74,9 +78,9 @@ namespace SalonKosmetycznyApp.Services
             conn.Open();
 
             var cmd = new MySqlCommand(
-                @"INSERT INTO schedules (employeeName, startDate, startTime, endTime) 
-                  VALUES (@employeeName, @startDate, @startTime, @endTime)", conn);
-
+    @"INSERT INTO schedules (employeeId, employeeName, startDate, startTime, endTime) 
+      VALUES (@employeeId, @employeeName, @startDate, @startTime, @endTime)", conn);
+            cmd.Parameters.AddWithValue("@employeeId", schedule.EmployeeId);
             cmd.Parameters.AddWithValue("@employeeName", schedule.EmployeeName);
             cmd.Parameters.AddWithValue("@startDate", schedule.StartDate.Date);
             cmd.Parameters.AddWithValue("@startTime", schedule.StartTime);

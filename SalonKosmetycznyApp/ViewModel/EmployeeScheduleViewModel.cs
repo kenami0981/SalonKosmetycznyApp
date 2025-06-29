@@ -18,7 +18,9 @@ namespace SalonKosmetycznyApp.ViewModel
 {
     internal class EmployeeScheduleViewModel : BaseViewModel
     {
-        public ObservableCollection<string> Employees { get; } = new ObservableCollection<string>();
+        public ObservableCollection<Employee> Employees { get; } = new ObservableCollection<Employee>();
+
+        private List<Employee> _allEmployees = new List<Employee>();
         public List<TimeSpan> Hours { get; } = new()
 {
     new TimeSpan(8, 0, 0),
@@ -84,6 +86,20 @@ namespace SalonKosmetycznyApp.ViewModel
                 }
             }
         }
+        private Employee _selectedEmployee;
+        public Employee SelectedEmployee
+        {
+            get => _selectedEmployee;
+            set
+            {
+                if (_selectedEmployee != value)
+                {
+                    _selectedEmployee = value;
+                    EmployeeName = $"{value?.FirstName} {value?.LastName}"; // dla ewentualnego wyświetlania
+                    OnPropertyChanged(nameof(SelectedEmployee));
+                }
+            }
+        }
         private bool FilterSchedule(object obj)
         {
             if (obj is Schedule schedule)
@@ -101,13 +117,10 @@ namespace SalonKosmetycznyApp.ViewModel
         private void LoadEmployees()
         {
             Employees.Clear();
-            var employeesFromDb = _employeeService.GetAllEmployees();
+            _allEmployees = _employeeService.GetAllEmployees();
 
-            foreach (var employee in employeesFromDb)
-            {
-                string fullName = $"{employee.FirstName} {employee.LastName}";
-                Employees.Add(fullName);
-            }
+            foreach (var employee in _allEmployees)
+                Employees.Add(employee);
         }
         public void LoadData()
             {
@@ -123,7 +136,7 @@ namespace SalonKosmetycznyApp.ViewModel
             {
             StartTime = EndTime = null;
             StartDate = null;
-            EmployeeName = null;
+            SelectedEmployee = null;
             SelectedSchedule = null;
 
             OnPropertyChanged(nameof(EmployeeName));
@@ -136,21 +149,20 @@ namespace SalonKosmetycznyApp.ViewModel
 
 
 
-            public string _employeeName;
-            public string EmployeeName
+        private string _employeeName;
+        public string EmployeeName
+        {
+            get => _employeeName;
+            set
             {
-                get => _employeeName;
-                set
+                if (_employeeName != value)
                 {
-                    if (_employeeName != value)
-                    {
-                        _employeeName = value;
-                        OnPropertyChanged(nameof(EmployeeName));
-                    }
-
+                    _employeeName = value;
+                    OnPropertyChanged(nameof(EmployeeName));
                 }
             }
-            public DateTime? _startDate;
+        }
+        public DateTime? _startDate;
             public DateTime? StartDate
             {
                 get => _startDate;
@@ -195,23 +207,28 @@ namespace SalonKosmetycznyApp.ViewModel
         }
         
             private Schedule _selectedSchedule;
-            public Schedule? SelectedSchedule
+        public Schedule? SelectedSchedule
+        {
+            get => _selectedSchedule;
+            set
             {
-                get => _selectedSchedule;
-                set
-                {
                 _selectedSchedule = value;
-                    if (_selectedSchedule  != null)
-                    {
-                        EmployeeName = _selectedSchedule.EmployeeName;
-                        StartDate = _selectedSchedule.StartDate;
-                        StartTime = _selectedSchedule.StartTime;
-                        EndTime = _selectedSchedule.EndTime;
+                if (_selectedSchedule != null)
+                {
+                    EmployeeName = _selectedSchedule.EmployeeName;
+                    StartDate = _selectedSchedule.StartDate;
+                    StartTime = _selectedSchedule.StartTime;
+                    EndTime = _selectedSchedule.EndTime;
 
-                        OnPropertyChanged(nameof(SelectedSchedule));
-                    }
+                    // TO JEST KLUCZOWE:
+                    SelectedEmployee = _allEmployees
+                        .FirstOrDefault(e => e.Id == _selectedSchedule.EmployeeId);
+
+                    OnPropertyChanged(nameof(SelectedSchedule));
                 }
             }
+        }
+
 
         private ICommand _addScheduleCommand;
         public ICommand AddScheduleCommand => _addScheduleCommand ??= new RelayCommand(
@@ -225,13 +242,21 @@ namespace SalonKosmetycznyApp.ViewModel
                     return;
                 }
 
-                var schedule = new Schedule(
-                    EmployeeName,
-                    StartDate.Value,
-                    StartTime.Value,
-                    EndTime.Value);
 
+                if (SelectedEmployee == null ||
+     StartDate == null || StartTime == null || EndTime == null)
+                {
+                    return;
+                }
+
+                var schedule = new Schedule(
+    SelectedEmployee.Id,
+    $"{SelectedEmployee.FirstName} {SelectedEmployee.LastName}",
+    StartDate.Value,
+    StartTime.Value,
+    EndTime.Value);
                 _scheduleService.AddSchedule(schedule);
+
                 LoadData();
                 ClearForm();
                 OnPropertyChanged(nameof(AddScheduleCommand));
@@ -240,6 +265,7 @@ namespace SalonKosmetycznyApp.ViewModel
                 return StartDate != null & EmployeeName!=null & StartTime!=null & EndTime!=null & StartTime < EndTime;
             }
         );
+
         private ICommand _updateScheduleCommand;
         public ICommand UpdateScheduleCommand => _updateScheduleCommand ??= new RelayCommand(
             o =>
